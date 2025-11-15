@@ -8,6 +8,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { getPetState, logAction, resetPet } from "../../src/logic/petState.js";
+import { Image } from 'react-native';
 
 type ActionType = "recycle" | "walk" | "energySave";
 
@@ -20,11 +21,11 @@ type PetState = {
   stage?: { name: string };
 };
 
-function getPetEmoji(level: number) {
-  if (level >= 4) return "🌳"; // final evolution
-  if (level >= 3) return "🌲";
-  if (level >= 2) return "🌿";
-  return "🌱";
+function getPetImage(level: number) {
+  if (level >= 4) return require("../../assets/images/tree.png");
+  if (level >= 3) return require("../../assets/images/sapling.png");
+  if (level >= 2) return require("../../assets/images/seedling.png");
+  return require("../../assets/images/egg.png");
 }
 
 export default function PetScreen() {
@@ -54,7 +55,7 @@ export default function PetScreen() {
     setPet(resetedPet);
   };
 
-  const petEmoji = getPetEmoji(pet.level);
+  const petEmoji = getPetImage(pet.level);
   const stageName = pet.stage?.name ?? "Sprout";
 
   return (
@@ -70,7 +71,11 @@ export default function PetScreen() {
 
           {/* Pet card */}
           <View style={styles.petCard}>
-            <Text style={styles.petEmoji}>{petEmoji}</Text>
+            <Image 
+                source={petImage} 
+                style={styles.petImage}
+                resizeMode="contain"
+            />
             <Text style={styles.petName}>{stageName}</Text>
             <Text style={styles.petMood}>
               Mood: <Text style={styles.petMoodValue}>{pet.mood}</Text>
@@ -220,6 +225,11 @@ const styles = StyleSheet.create({
     color: "#7C3AED",
     textAlign: "center",
     fontStyle: "italic",
+  },
+  petImage: {
+  width: 120,
+  height: 120,
+  marginBottom: 8,
   },
 
   // 💖 bottom action buttons (like Tamagotchi buttons area)
