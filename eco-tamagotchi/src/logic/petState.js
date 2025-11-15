@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as AsyncStorage from "@react-native-async-storage/async-storage";
 
 const STORAGE_KEY = "ECO_PET_STATE";
 
