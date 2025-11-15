@@ -6,6 +6,7 @@ import { getPersonalityMessage } from './personality';
 import { getStageForLevel } from './evolutions';
 
 const STORAGE_KEY = 'ECO_PET_STATE';
+const HISTORY_KEY = 'ECO_PET_HISTORY';
 
 // --- DEFAULT PET STATE ---
 const defaultPet = {
@@ -36,6 +37,41 @@ export async function loadPetState() {
 // --- SAVE PET STATE ---
 async function savePetState(pet) {
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(pet));
+}
+
+// --- NEW: LOAD HISTORY ---
+export async function loadHistory() {
+  try {
+    const data = await AsyncStorage.getItem(HISTORY_KEY);
+    if (!data) return [];
+    return JSON.parse(data);
+  } catch (err) {
+    console.log('Error loading history:', err);
+    return [];
+  }
+}
+
+// --- NEW: SAVE HISTORY ---
+async function saveHistory(history) {
+  await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
+
+// --- NEW: ADD HISTORY ENTRY ---
+async function addHistoryEntry(actionType, xpGain) {
+  const history = await loadHistory();
+  
+  const entry = {
+    id: Date.now().toString(),
+    action: actionType,
+    xp: xpGain,
+    timestamp: Date.now(),
+  };
+  
+  // Add to beginning (newest first), keep last 50 entries
+  history.unshift(entry);
+  const trimmedHistory = history.slice(0, 50);
+  
+  await saveHistory(trimmedHistory);
 }
 
 // --- DECAY LOGIC ---
@@ -82,6 +118,9 @@ export async function logAction(actionType) {
   // 5. Mood + timestamp
   pet.mood = 'happy';
   pet.lastUpdated = Date.now();
+
+  // 6. NEW: Save to history
+  await addHistoryEntry(actionType, xpGain);
 
   await savePetState(pet);
   return pet;

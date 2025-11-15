@@ -8,8 +8,8 @@ import {
   SafeAreaView,
   Image,
 } from "react-native";
-import { getPetState, logAction, resetPet } from "../../src/logic/petState.js";
-//import { Image } from 'react-native';
+import { getPetState, logAction, resetPet, loadHistory} from "../../src/logic/petState.js";
+import HistorySidebar from "./components/history_sidebar";
 
 type ActionType = "recycle" | "walk" | "energySave";
 
@@ -42,13 +42,23 @@ export default function PetScreen() {
     async function fetchPet() {
       const petData = await getPetState();
       if (petData) setPet(petData);
+
+      const historyData = await loadHistory();
+      setHistory(historyData);
     }
     fetchPet();
   }, []);
 
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
+
   const handleAction = async (actionType: ActionType) => {
     const updatedPet = await logAction(actionType);
     setPet(updatedPet);
+
+    // Refresh history after action
+    const historyData = await loadHistory();
+    setHistory(historyData);
   };
 
   const handleReset = async () => {
@@ -112,12 +122,27 @@ export default function PetScreen() {
             </TouchableOpacity>
           </View>
 
+            {/* History button */}
+            <TouchableOpacity 
+                style={styles.historyButton} 
+                onPress={() => setSidebarVisible(true)}
+            >
+                <Text style={styles.historyText}>📜 HISTORY</Text>
+            </TouchableOpacity>
+
           {/* Reset */}
           <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
             <Text style={styles.resetText}>RESET PET 🔄</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* NEW ADD */}
+      <HistorySidebar 
+        visible={sidebarVisible}
+        onClose={() => setSidebarVisible(false)}
+        history={history}
+      />
     </SafeAreaView>
   );
 }
@@ -286,6 +311,25 @@ const styles = StyleSheet.create({
     letterSpacing: 1.1,
     fontSize: 12,
   },
+  // History button
+    historyButton: {
+        marginTop: 12,
+        alignSelf: "center",
+        paddingHorizontal: 20,
+        paddingVertical: 9,
+        borderRadius: 999,
+        backgroundColor: "#E9D5FF", // soft purple
+        shadowColor: "#C084FC",
+        shadowOpacity: 0.35,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 5 },
+    },
+    historyText: {
+        color: "#6B21A8",
+        fontWeight: "800",
+        letterSpacing: 1.1,
+        fontSize: 12,
+    },
 });
 
 
