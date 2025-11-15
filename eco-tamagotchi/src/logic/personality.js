@@ -39,3 +39,16 @@ export function getPersonalityMessage(petState, ecoStats, lastActionId) {
   // 4. Default message
   return "Your pet is feeling okay. Keep up the eco-habits!";
 }
+
+
+// export function getPersonalityMessage(petState, ecoStats, lastAction) {
+//   if (lastAction === 'walk') return "Your pet loved your eco-friendly walk!";
+//   if (lastAction === 'turn_off_room_lights') return "Your pet feels energized by your clean habits!";
+//   if (lastAction === 'recycle') return "Your pet is proud you recycled!";
+
+//   if (ecoStats.co2Saved > 1000) return "Your pet can breathe easier already!";
+//   if (ecoStats.energySaved < 20) return "Your pet looks tired… maybe time for an eco action?";
+
+//   return "Your pet is content!";
+// }
+
