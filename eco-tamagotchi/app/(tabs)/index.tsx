@@ -1,7 +1,6 @@
 // app/(tabs)/index.tsx
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
-import { getPetState, logAction, resetPet } from "../../src/logic/petState";
 
 type ActionType = "recycle" | "walk" | "energySave";
 
