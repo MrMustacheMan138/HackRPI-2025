@@ -6,9 +6,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  Image,
 } from "react-native";
 import { getPetState, logAction, resetPet } from "../../src/logic/petState.js";
-import { Image } from 'react-native';
+//import { Image } from 'react-native';
 
 type ActionType = "recycle" | "walk" | "energySave";
 
@@ -55,7 +56,7 @@ export default function PetScreen() {
     setPet(resetedPet);
   };
 
-  const petEmoji = getPetImage(pet.level);
+  const petImage = getPetImage(pet.level);
   const stageName = pet.stage?.name ?? "Sprout";
 
   return (
