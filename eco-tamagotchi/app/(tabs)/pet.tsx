@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
 
   // 🌸 egg shell card
   container: {
-    width: 320,
+    width: 400,
     paddingVertical: 28,
     paddingHorizontal: 20,
     borderRadius: 200, // egg-ish
