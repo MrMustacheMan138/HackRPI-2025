@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   // 🌸 egg shell card
   container: {
     width: 400,
-    paddingVertical: 28,
+    paddingVertical: 20,
     paddingHorizontal: 20,
     borderRadius: 200, // egg-ish
     backgroundColor: "#FFB3DA", // pastel pink shell
