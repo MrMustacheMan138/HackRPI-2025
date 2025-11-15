@@ -1,30 +1,21 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// src/logic/petState.js
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { 
-  initialEcoStats, 
-  applyEcoAction 
-} from "./impact_model";
+import { getXpForAction } from './impact_model';
+import { getPersonalityMessage } from './personality';
+import { getStageForLevel } from './evolutions';
 
-import { 
-  getPersonalityMessage 
-} from "./personality";
-
-import { 
-  getStageForLevel 
-} from "./evolutions";
-
-const STORAGE_KEY = "ECO_PET_STATE";
+const STORAGE_KEY = 'ECO_PET_STATE';
 
 // --- DEFAULT PET STATE ---
 const defaultPet = {
-  mood: "neutral",
+  mood: 'neutral',
   xp: 0,
   level: 1,
-  ecoStats: initialEcoStats,
   lastActionId: null,
-  lastUpdated: Date.now(),
   message: "Hi! I'm your eco-pet 🌱",
-  stage: getStageForLevel(1),
+  stage: getStageForLevel(1), // { name: 'Sprout', ... }
+  lastUpdated: Date.now(),
 };
 
 // --- LOAD PET STATE ---
@@ -34,11 +25,10 @@ export async function loadPetState() {
     if (!data) return { ...defaultPet };
 
     const parsed = JSON.parse(data);
-
-    // merge new fields with existing saved state
+    // merge to ensure new fields exist
     return { ...defaultPet, ...parsed };
   } catch (err) {
-    console.log("Error loading pet:", err);
+    console.log('Error loading pet:', err);
     return { ...defaultPet };
   }
 }
@@ -54,7 +44,7 @@ function applyDecay(pet) {
   const hoursPassed = Math.floor((now - pet.lastUpdated) / (1000 * 60 * 60));
 
   if (hoursPassed > 0) {
-    pet.mood = "sad";
+    pet.mood = 'sad';
     pet.xp = Math.max(0, pet.xp - hoursPassed * 2);
     pet.lastUpdated = now;
   }
@@ -62,7 +52,7 @@ function applyDecay(pet) {
   return pet;
 }
 
-// --- LEVELING ---
+// --- LEVEL-UP LOGIC ---
 function computeLevel(xp) {
   if (xp < 20) return 1;
   if (xp < 50) return 2;
@@ -70,36 +60,34 @@ function computeLevel(xp) {
   return 4;
 }
 
-// --- LOG ECO ACTION ---
-export async function logAction(actionId) {
+// --- LOG ACTIONS (called by UI when you press buttons) ---
+export async function logAction(actionType) {
   let pet = await loadPetState();
   pet = applyDecay(pet);
 
-  // 1. Apply eco impact (YOUR MODEL)
-  pet.ecoStats = applyEcoAction(pet.ecoStats || initialEcoStats, actionId);
+  // 1. Get XP reward based on which action it is
+  const xpGain = getXpForAction(actionType);
+  pet.xp += xpGain;
 
-  // 2. XP gain based on eco action
-  pet.xp += 10;
-
-  // 3. Update level
+  // 2. Update level from XP
   pet.level = computeLevel(pet.xp);
 
-  // 4. Update pet evolution stage (YOUR MODEL)
+  // 3. Update evolution stage
   pet.stage = getStageForLevel(pet.level);
 
-  // 5. Personality message (YOUR MODEL)
-  pet.message = getPersonalityMessage(pet, pet.ecoStats, actionId);
+  // 4. Update personality message
+  pet.lastActionId = actionType;
+  pet.message = getPersonalityMessage(pet, actionType);
 
-  // 6. Mood & timestamp
-  pet.mood = "happy";
-  pet.lastActionId = actionId;
+  // 5. Mood + timestamp
+  pet.mood = 'happy';
   pet.lastUpdated = Date.now();
 
   await savePetState(pet);
   return pet;
 }
 
-// --- GET PET STATE ---
+// --- GET PET STATE ON STARTUP ---
 export async function getPetState() {
   let pet = await loadPetState();
   pet = applyDecay(pet);
@@ -113,6 +101,7 @@ export async function resetPet() {
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(defaultPet));
   return { ...defaultPet };
 }
+
 
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 
