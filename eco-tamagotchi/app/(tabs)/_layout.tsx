@@ -2,8 +2,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DefaultTheme } from '@react-navigation/native';
 import { Text } from 'react-native';
-import Explore from './explore';
 import Home from './index';
+import Pet from './pet';
 
 const Tab = createBottomTabNavigator();
 
@@ -19,7 +19,7 @@ export default function TabsLayout() {
       }}
     >
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Explore" component={Explore} />
+      <Tab.Screen name="Pet" component={Pet} />
     </Tab.Navigator>
   );
 }
