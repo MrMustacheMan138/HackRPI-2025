@@ -22,9 +22,9 @@ type PetState = {
 };
 
 function getPetImage(level: number) {
-  if (level >= 4) return require("../../assets/images/tree.png");
-  if (level >= 3) return require("../../assets/images/sapling.png");
-  if (level >= 2) return require("../../assets/images/seedling.png");
+  if (level >= 4) return require("../../assets/images/level3.png");
+  if (level >= 3) return require("../../assets/images/level2.png");
+  if (level >= 2) return require("../../assets/images/level1.png");
   return require("../../assets/images/egg.png");
 }
 
