@@ -1,3 +1,4 @@
+// app/_layout.tsx
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -10,11 +11,27 @@ export const unstable_settings = {
 export default function RootLayout() {
   return (
     <ThemeProvider value={DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerStyle: { backgroundColor: DefaultTheme.colors.background },
+          headerTintColor: DefaultTheme.colors.text,
+          contentStyle: { backgroundColor: DefaultTheme.colors.background },
+        }}
+      >
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="modal"
+          options={{
+            presentation: 'modal',
+            headerShown: true,
+            title: 'Modal',
+            headerStyle: { backgroundColor: DefaultTheme.colors.background },
+            headerTintColor: DefaultTheme.colors.text,
+          }}
+        />
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar style="dark" translucent={false} backgroundColor={DefaultTheme.colors.background} />
     </ThemeProvider>
   );
 }
