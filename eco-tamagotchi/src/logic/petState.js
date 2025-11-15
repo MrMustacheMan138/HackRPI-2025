@@ -1,14 +1,13 @@
-// src/state/petState.js
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const STORAGE_KEY = "ECO_PET_STATE";
 
 // --- DEFAULT PET STATE ---
 const defaultPet = {
-  mood: "neutral",          // "happy", "sad", "neutral"
+  mood: "neutral",
   xp: 0,
   level: 1,
-  lastUpdated: Date.now(),  // timestamp for decay logic
+  lastUpdated: Date.now(),
 };
 
 // --- LOAD PET STATE FROM STORAGE ---
@@ -25,18 +24,18 @@ export async function loadPetState() {
   }
 }
 
-// --- SAVE PET STATE ----
+// --- SAVE PET STATE ---
 async function savePetState(pet) {
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(pet));
 }
 
-// --- DECAY LOGIC (PET GETS SAD IF INACTIVE) ---
+// --- DECAY LOGIC ---
 function applyDecay(pet) {
   const now = Date.now();
   const hoursPassed = Math.floor((now - pet.lastUpdated) / (1000 * 60 * 60));
 
   if (hoursPassed > 0) {
-    pet.mood = "sad";      // simple decay system
+    pet.mood = "sad";
     pet.xp = Math.max(0, pet.xp - hoursPassed * 2);
     pet.lastUpdated = now;
   }
@@ -52,12 +51,11 @@ function computeLevel(xp) {
   return 4;
 }
 
-// --- LOGGING ACTIONS (UI CALLS THIS) ---
+// --- LOG ACTIONS ---
 export async function logAction(actionType) {
   let pet = await loadPetState();
   pet = applyDecay(pet);
 
-  // XP rewards per action
   const xpRewards = {
     recycle: 5,
     walk: 8,
@@ -73,7 +71,7 @@ export async function logAction(actionType) {
   return pet;
 }
 
-// --- GET PET (WITH DECAY APPLIED) ---
+// --- GET PET STATE ---
 export async function getPetState() {
   let pet = await loadPetState();
   pet = applyDecay(pet);
