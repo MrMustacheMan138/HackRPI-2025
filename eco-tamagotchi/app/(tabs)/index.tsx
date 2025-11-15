@@ -117,23 +117,26 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  // whole screen background
   safeArea: {
     flex: 1,
-    backgroundColor: "#050816",
+    backgroundColor: "#FFEAF7", // soft pastel pink
   },
   background: {
     flex: 1,
-    backgroundColor: "#050816", // deep night sky
+    backgroundColor: "#FFEAF7",
     justifyContent: "center",
     alignItems: "center",
   },
+
+  // soft pastel glows behind the egg
   glowTop: {
     position: "absolute",
     top: -80,
     width: 260,
     height: 260,
     borderRadius: 130,
-    backgroundColor: "rgba(56,189,248,0.25)", // cyan glow
+    backgroundColor: "rgba(244, 187, 255, 0.55)", // lilac glow
   },
   glowBottom: {
     position: "absolute",
@@ -141,124 +144,141 @@ const styles = StyleSheet.create({
     width: 320,
     height: 320,
     borderRadius: 160,
-    backgroundColor: "rgba(74,222,128,0.25)", // green glow
+    backgroundColor: "rgba(186, 230, 253, 0.55)", // baby-blue glow
   },
+
+  // 🌸 egg shell card
   container: {
-    width: "92%",
-    paddingVertical: 32,
+    width: 320,
+    paddingVertical: 28,
     paddingHorizontal: 20,
-    borderRadius: 24,
-    backgroundColor: "rgba(15,23,42,0.96)", // slate card
-    borderWidth: 1,
-    borderColor: "rgba(148,163,184,0.25)",
-    shadowColor: "#22c55e",
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 12 },
+    borderRadius: 200, // egg-ish
+    backgroundColor: "#FFB3DA", // pastel pink shell
+    borderWidth: 2,
+    borderColor: "#FF8CCF",
+    alignItems: "center",
+    shadowColor: "#F472B6",
+    shadowOpacity: 0.35,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 10 },
   },
+
+  // title text above “screen”
   appTitle: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: "900",
-    color: "#e5e7eb",
+    color: "#7C3AED", // purple
     textAlign: "center",
     letterSpacing: 1.5,
   },
   appSubtitle: {
-    fontSize: 14,
-    color: "#9ca3af",
+    fontSize: 12,
+    color: "#A855F7",
     textAlign: "center",
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 16,
   },
+
+  // 🪟 LCD screen area (where pet + stats live)
   petCard: {
+    width: "100%",
     alignItems: "center",
-    paddingVertical: 18,
+    paddingVertical: 16,
     paddingHorizontal: 12,
-    borderRadius: 20,
-    backgroundColor: "rgba(15,118,110,0.15)",
-    borderWidth: 1,
-    borderColor: "rgba(45,212,191,0.5)",
-    marginBottom: 20,
+    borderRadius: 24,
+    backgroundColor: "#FFFDF5", // soft cream screen
+    borderWidth: 1.5,
+    borderColor: "#FBCFE8",
+    marginBottom: 18,
   },
   petEmoji: {
-    fontSize: 56,
+    fontSize: 52,
     marginBottom: 4,
   },
   petName: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#a7f3d0",
+    color: "#FB7185", // coral pink
     marginBottom: 6,
   },
   petMood: {
-    fontSize: 16,
-    color: "#e5e7eb",
+    fontSize: 15,
+    color: "#4B5563",
     marginBottom: 2,
   },
   petMoodValue: {
     fontWeight: "700",
-    color: "#facc15",
+    color: "#F59E0B", // soft yellow
   },
   petStat: {
-    fontSize: 15,
-    color: "#cbd5f5",
+    fontSize: 14,
+    color: "#6B7280",
   },
   petMessage: {
-    marginTop: 10,
-    fontSize: 14,
-    color: "#bbf7d0",
+    marginTop: 8,
+    fontSize: 13,
+    color: "#7C3AED",
     textAlign: "center",
     fontStyle: "italic",
   },
+
+  // 💖 bottom action buttons (like Tamagotchi buttons area)
   actionsWrapper: {
     marginTop: 12,
+    width: "100%",
     gap: 10,
   },
   actionButton: {
     width: "100%",
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#22c55e",
+    shadowColor: "#F9A8D4",
     shadowOpacity: 0.25,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
   },
   actionText: {
-    color: "#f9fafb",
     fontWeight: "700",
-    letterSpacing: 1.5,
-    fontSize: 14,
-  },
-  recycleButton: {
-    backgroundColor: "#22c55e",
-  },
-  walkButton: {
-    backgroundColor: "#38bdf8",
-  },
-  energyButton: {
-    backgroundColor: "#f97316",
-  },
-  resetButton: {
-    marginTop: 20,
-    alignSelf: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: "#ef4444",
-    shadowColor: "#f87171",
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-  },
-  resetText: {
-    color: "#f9fafb",
-    fontWeight: "800",
     letterSpacing: 1.2,
     fontSize: 13,
   },
+
+  // individual pastel colors
+  recycleButton: {
+    backgroundColor: "#BBF7D0", // mint
+  },
+  walkButton: {
+    backgroundColor: "#BFDBFE", // baby blue
+  },
+  energyButton: {
+    backgroundColor: "#FDE68A", // pastel yellow
+  },
+
+  // 🔁 reset button
+  resetButton: {
+    marginTop: 18,
+    alignSelf: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 9,
+    borderRadius: 999,
+    backgroundColor: "#FECACA", // soft red/pink
+    shadowColor: "#FCA5A5",
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+  },
+  resetText: {
+    color: "#7F1D1D",
+    fontWeight: "800",
+    letterSpacing: 1.1,
+    fontSize: 12,
+  },
 });
+
+
+
 
 // // app/(tabs)/index.tsx
 // import React, { useEffect, useState } from "react";
