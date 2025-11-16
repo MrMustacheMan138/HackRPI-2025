@@ -149,11 +149,11 @@ export default function PetScreen() {
                 resizeMode="contain"
               />
               <Text style={styles.petName}>{stageName}</Text>
+              <Text style={styles.petLevel}>Level: {pet.level}</Text>
               <Text style={styles.petMood}>
                 Mood: <Text style={styles.petMoodValue}>{pet.mood}</Text>
               </Text>
               <Text style={styles.petStat}>XP: {pet.xp}</Text>
-              <Text style={styles.petStat}>Level: {pet.level}</Text>
             </View>
 
             {/* Actions */}
@@ -180,7 +180,7 @@ export default function PetScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </View>Fhi
       </ImageBackground>
 
       {/* Action detail modal */}
@@ -286,6 +286,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#FB7185",
     marginBottom: 6,
+  },
+  petLevel: {
+    fontFamily: "PressStart2P_400Regular",
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#7C3AED",
+    marginBottom: 12,
   },
   petMood: {
     fontFamily: "PressStart2P_400Regular",
