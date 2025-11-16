@@ -1,37 +1,26 @@
 [
   {
-    "id": "first_recycle",
-    "name": "Recycling Beginner",
-    "description": "Recycle your first item",
-    "type": "history",
-    "key": "recycle"
+    "id": "recycler",
+    "title": "Recycler",
+    "description": "Recycled for the first time!",
+    "icon": "recycler.png"
   },
   {
-    "id": "walker",
-    "name": "Happy Walker",
-    "description": "Take your pet for a walk",
-    "type": "history",
-    "key": "walk"
+    "id": "first_steps",
+    "title": "First Steps",
+    "description": "Went for your first walk!",
+    "icon": "first_steps.png"
   },
   {
     "id": "energy_saver",
-    "name": "Energy Saver",
-    "description": "Perform your first energy-saving action",
-    "type": "history",
-    "key": "energySave"
+    "title": "Energy Saver",
+    "description": "Saved energy for the planet!",
+    "icon": "energy_saver.png"
   },
   {
-    "id": "level_up_5",
-    "name": "Rising Star",
-    "description": "Reach level 5",
-    "type": "pet",
-    "key": 5
-  },
-  {
-    "id": "level_up_10",
-    "name": "Super Star",
-    "description": "Reach level 10",
-    "type": "pet",
-    "key": 10
+    "id": "level_5",
+    "title": "Level 5",
+    "description": "Reached level 5!",
+    "icon": "level_5.png"
   }
 ]
