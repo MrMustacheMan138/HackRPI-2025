@@ -25,7 +25,7 @@ import {
 } from "@expo-google-fonts/baloo-2";
 import { PressStart2P_400Regular } from "@expo-google-fonts/press-start-2p";
 
-const bgImage = require("../../assets/images/new.jpg");
+const bgImage = require("../../assets/images/newnew.jpg");
 
 type ActionType = "recycle" | "walk" | "energySave";
 
