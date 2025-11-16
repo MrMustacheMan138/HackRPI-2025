@@ -126,8 +126,7 @@ export default function PetScreen() {
 
         <View style={styles.container}>
           {/* Title */}
-          <Text style={styles.appTitle}>Eco Pet</Text>
-          <Text style={styles.appSubtitle}>Your tiny forest guardian</Text>
+          <Text style={styles.appTitle}>Tama</Text>
 
           {/* Pet card */}
           <View style={styles.petCard}>
