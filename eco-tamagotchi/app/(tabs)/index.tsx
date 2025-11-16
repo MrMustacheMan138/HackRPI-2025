@@ -19,18 +19,18 @@ export default function HomeScreen() {
   useEffect(() => {
     let isMounted = true;
 
-    async function refreshPet() {
+    async function checkPet() {
       const petData = await getPetState();
       if (isMounted && petData) {
-        setPet(petData);
+        setHasPet(true);
       }
     }
 
     // call immediately
-    refreshPet();
+    checkPet();
 
     // then every 5 seconds (tune this)
-    const intervalId = setInterval(refreshPet, 5000);
+    const intervalId = setInterval(checkPet, 5000);
 
     return () => {
       isMounted = false;
