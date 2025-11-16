@@ -53,10 +53,10 @@ type Achievement = {
 
 // Achievement icon mapping (local images)
 const achievementIcons: Record<string, any> = {
-  recycler: require("eco-tamagotchi\assets\images\trophy_placeholder.png"),
-  first_steps: require("eco-tamagotchi\assets\images\trophy_placeholder.png"),
-  energy_saver: require("eco-tamagotchi\assets\images\trophy_placeholder.png"),
-  level_5: require("eco-tamagotchi\assets\images\trophy_placeholder.png"),
+  recycler: require("../../assets/images/trophy_placeholder.png"),
+  first_steps: require("../../assets/images/trophy_placeholder.png"),
+  energy_saver: require("../../assets/images/trophy_placeholder.png"),
+  level_5: require("../../assets/images/trophy_placeholder.png"),
 };
 
 // Load achievements from JSON
