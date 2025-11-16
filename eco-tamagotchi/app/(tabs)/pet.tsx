@@ -308,6 +308,142 @@ export default function PetScreen() {
           onResetPet={handleResetPet}
         />
 
+        {/* Action Selection Modal */}
+        <Modal
+          visible={isActionModalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setIsActionModalVisible(false)}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(0,0,0,0.4)",
+            }}
+          >
+            <View
+              style={{
+                width: "90%",
+                maxWidth: 420,
+                borderRadius: 28,
+                padding: 22,
+                backgroundColor: "#FFE8F7",
+                alignSelf: "center",
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: "PressStart2P_400Regular",
+                  fontSize: 20,
+                  fontWeight: "700",
+                  textAlign: "center",
+                  marginBottom: 12,
+                  color: "#7C3AED",
+                }}
+              >
+                {pendingActionType === "recycle" && "What did you recycle?"}
+                {pendingActionType === "walk" && "How long did you walk?"}
+                {pendingActionType === "energySave" && "How did you save energy?"}
+              </Text>
+
+              {pendingActionType === "recycle" &&
+                [{label: "Plastic", xp: 5}, {label: "Paper", xp: 5}, {label: "Electronics", xp: 20}].map((item) => (
+                  <Pressable
+                    key={item.label}
+                    onPress={() => handleConfirmAction(item.label as ActionDetail)}
+                    style={{
+                      paddingVertical: 10,
+                      paddingHorizontal: 14,
+                      borderRadius: 999,
+                      backgroundColor: "#FFF",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "PressStart2P_400Regular",
+                        textAlign: "center",
+                      }}
+                    >
+                      {item.label}{" "}
+                      <Text style={{ fontSize: 10, color: "#22C55E" }}>+{item.xp}XP</Text>
+                    </Text>
+                  </Pressable>
+                ))}
+
+              {pendingActionType === "walk" &&
+                [{label: "Short walk", xp: 5}, {label: "Medium walk", xp: 10}, {label: "Long walk", xp: 15}].map((item) => (
+                  <Pressable
+                    key={item.label}
+                    onPress={() => handleConfirmAction(item.label as ActionDetail)}
+                    style={{
+                      paddingVertical: 10,
+                      paddingHorizontal: 14,
+                      borderRadius: 999,
+                      backgroundColor: "#FFF",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "PressStart2P_400Regular",
+                        textAlign: "center",
+                      }}
+                    >
+                      {item.label}{" "}
+                      <Text style={{ fontSize: 10, color: "#22C55E" }}>+{item.xp}XP</Text>
+                    </Text>
+                  </Pressable>
+                ))}
+
+              {pendingActionType === "energySave" &&
+                [{label: "Turned off lights", xp: 3}, {label: "Shorter shower", xp: 5}, {label: "Unplugged devices", xp: 5}].map(
+                  (item) => (
+                    <Pressable
+                      key={item.label}
+                      onPress={() =>
+                        handleConfirmAction(item.label as ActionDetail)
+                      }
+                      style={{
+                        paddingVertical: 10,
+                        paddingHorizontal: 14,
+                        borderRadius: 999,
+                        backgroundColor: "#FFF",
+                        marginBottom: 8,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: "PressStart2P_400Regular",
+                          textAlign: "center",
+                        }}
+                      >
+                        {item.label}{" "}
+                        <Text style={{ fontSize: 10, color: "#22C55E" }}>+{item.xp}XP</Text>
+                      </Text>
+                    </Pressable>
+                  )
+                )}
+
+              <Pressable
+                onPress={() => setIsActionModalVisible(false)}
+                style={{ marginTop: 8, alignSelf: "center" }}
+              >
+                <Text
+                  style={{
+                    fontFamily: "PressStart2P_400Regular",
+                    color: "#6B7280",
+                  }}
+                >
+                  Cancel
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+
         {/* Achievement toast */}
         {toastVisible && currentAchievement && (
           <Animated.View
