@@ -180,7 +180,7 @@ export default function PetScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </View>Fhi
+        </View>
       </ImageBackground>
 
       {/* Action detail modal */}
