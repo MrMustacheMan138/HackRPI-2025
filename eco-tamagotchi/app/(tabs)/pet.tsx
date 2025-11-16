@@ -145,7 +145,6 @@ export default function PetScreen() {
                 Mood: <Text style={styles.petMoodValue}>{pet.mood}</Text>
               </Text>
               <Text style={styles.petStat}>XP: {pet.xp}</Text>
-              <Text style={styles.petStat}>Level: {pet.level}</Text>
             </View>
 
             {/* Actions */}
