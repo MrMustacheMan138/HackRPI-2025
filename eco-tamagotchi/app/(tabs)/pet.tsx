@@ -482,29 +482,20 @@ const styles = StyleSheet.create({
     letterSpacing: 1.1,
     fontSize: 12,
   },
-
   floatingHistoryButton: {
     position: "absolute",
     top: 20,
     right: 30,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#E9D5FF",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#C084FC",
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
+    padding: 8,          // tap area
     zIndex: 100,
+    // no background, no fixed width/height, no borderRadius, no shadow
   },
   floatingHistoryText: {
     fontSize: 24,
     fontWeight: "700",
     color: "#4B5563",
   },
-});
+  });
 
 // // app/(tabs)/index.tsx
 // import React, { useEffect, useState } from "react";
