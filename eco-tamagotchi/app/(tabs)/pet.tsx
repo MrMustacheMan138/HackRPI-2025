@@ -13,6 +13,12 @@ import {
 import { getPetState, logAction, resetPet, loadHistory} from "../../src/logic/petState.js";
 import HistorySidebar from "./components/history_sidebar";
 //import { playSound } from "../../src/utils/sounds";
+import {
+  Baloo2_400Regular,
+  Baloo2_600SemiBold,
+} from "@expo-google-fonts/baloo-2";
+import { PressStart2P_400Regular } from "@expo-google-fonts/press-start-2p";
+
 
 type ActionType = "recycle" | "walk" | "energySave";
 
@@ -144,24 +150,38 @@ export default function PetScreen() {
           {/* Actions */}
           <View style={styles.actionsWrapper}>
             <TouchableOpacity
-              style={[styles.actionButton, styles.recycleButton]}
-              onPress={() => handleAction("recycle")}
+                style={[styles.actionButton, styles.recycleButton]}
+                onPress={() => openActionModal("recycle")}
             >
-              <Text style={styles.actionText}>RECYCLE ♻️</Text>
+                <Text style={styles.actionText}>RECYCLE ♻️</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.actionButton, styles.walkButton]}
-              onPress={() => handleAction("walk")}
+                style={[styles.actionButton, styles.walkButton]}
+                onPress={() => openActionModal("walk")}
             >
-              <Text style={styles.actionText}>WALK 🚶</Text>
+                <Text style={styles.actionText}>WALK 🚶</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.actionButton, styles.energyButton]}
-              onPress={() => handleAction("energySave")}
+                style={[styles.actionButton, styles.energyButton]}
+                onPress={() => openActionModal("energySave")}
             >
-              <Text style={styles.actionText}>SAVE ENERGY 💡</Text>
+                <Text style={styles.actionText}>SAVE ENERGY 💡</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={[styles.actionButton, styles.walkButton]}
+                onPress={() => handleAction("walk")}
+            >
+                <Text style={styles.actionText}>WALK 🚶</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={[styles.actionButton, styles.energyButton]}
+                onPress={() => handleAction("energySave")}
+            >
+                <Text style={styles.actionText}>SAVE ENERGY 💡</Text>
             </TouchableOpacity>
           </View>
           {/* Reset */}
@@ -348,17 +368,19 @@ const styles = StyleSheet.create({
 
   // title text above “screen”
   appTitle: {
-    fontSize: 26,
-    fontWeight: "900",
+    fontFamily: "PressStart2P_400Regular",
+    fontSize: 18,
     color: "#7C3AED", // purple
     textAlign: "center",
     letterSpacing: 1.5,
+    marginBottom: 6,
   },
   appSubtitle: {
-    fontSize: 12,
+    fontFamily: "Baloo2_400Regular",
+    fontSize: 13,
     color: "#A855F7",
     textAlign: "center",
-    marginTop: 4,
+    marginTop: 0,
     marginBottom: 16,
   },
 
@@ -379,25 +401,28 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   petName: {
+    fontFamily: "Baloo2_600SemiBold",
     fontSize: 20,
-    fontWeight: "700",
     color: "#FB7185", // coral pink
     marginBottom: 6,
   },
   petMood: {
+    fontFamily: "Baloo2_400Regular",
     fontSize: 15,
     color: "#4B5563",
     marginBottom: 2,
   },
   petMoodValue: {
-    fontWeight: "700",
+    fontFamily: "Baloo2_600SemiBold",
     color: "#F59E0B", // soft yellow
   },
   petStat: {
+    fontFamily: "Baloo2_400Regular",
     fontSize: 14,
     color: "#6B7280",
   },
   petMessage: {
+    fontFamily: "Baloo2_400Regular",
     marginTop: 8,
     fontSize: 13,
     color: "#7C3AED",
@@ -405,9 +430,9 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   petImage: {
-  width: 120,
-  height: 120,
-  marginBottom: 8,
+    width: 120,
+    height: 120,
+    marginBottom: 8,
   },
 
   // 💖 bottom action buttons (like Tamagotchi buttons area)
@@ -418,7 +443,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     width: "100%",
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
@@ -428,9 +453,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
   },
   actionText: {
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    fontSize: 13,
+    fontFamily: "Baloo2_600SemiBold",
+    letterSpacing: 0.5,
+    fontSize: 15,
   },
 
   // individual pastel colors
@@ -458,35 +483,33 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
   },
   resetText: {
+    fontFamily: "Baloo2_600SemiBold",
     color: "#7F1D1D",
-    fontWeight: "800",
     letterSpacing: 1.1,
     fontSize: 12,
   },
-    // Floating history button (top right)
-    floatingHistoryButton: {
-        position: "absolute",
-        top: 20, // Adjust based on your header
-        right: 30,
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: "#E9D5FF", // soft purple
-        alignItems: "center",
-        justifyContent: "center",
-        shadowColor: "#C084FC",
-        shadowOpacity: 0.35,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 5 },
-        zIndex: 100,
-    },
-    floatingHistoryText: {
-        fontSize: 24,
-    },
 
+  // Floating history button (top right)
+  floatingHistoryButton: {
+    position: "absolute",
+    top: 20, // Adjust based on your header
+    right: 30,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#E9D5FF", // soft purple
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#C084FC",
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    zIndex: 100,
+  },
+  floatingHistoryText: {
+    fontSize: 24,
+  },
 });
-
-
 
 
 // // app/(tabs)/index.tsx
