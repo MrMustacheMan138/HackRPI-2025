@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   actionButton: {
-    width: "100%",
+    width: "80%",
     paddingVertical: 10,
     borderRadius: 999,
     alignItems: "center",
