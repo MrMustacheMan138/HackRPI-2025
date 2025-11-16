@@ -25,7 +25,7 @@ import {
 } from "@expo-google-fonts/baloo-2";
 import { PressStart2P_400Regular } from "@expo-google-fonts/press-start-2p";
 
-const bgImage = require("../../assets/images/background.jpg"); // ✅ this is fine here
+const bgImage = require("../../assets/images/new.jpg");
 
 type ActionType = "recycle" | "walk" | "energySave";
 
@@ -130,8 +130,7 @@ export default function PetScreen() {
         <View style={styles.background}>
           <View style={styles.container}>
             {/* Title */}
-            <Text style={styles.appTitle}>Eco Pet</Text>
-            <Text style={styles.appSubtitle}>Your tiny forest guardian</Text>
+            <Text style={styles.appTitle}>Tama</Text>
 
             {/* Pet card */}
             <View style={styles.petCard}>
