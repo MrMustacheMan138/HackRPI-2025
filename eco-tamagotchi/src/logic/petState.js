@@ -12,9 +12,7 @@ const defaultPet = {
   mood: 'neutral',
   xp: 0,
   level: 1,
-  // lastActionId: null,         // no longer needed
-  // message: "Hi! I'm your eco-pet 🌱", // no more default message
-  stage: getStageForLevel(1),   // { name: 'Sprout', ... }
+  stage: getStageForLevel(1),
   lastUpdated: Date.now(),
 };
 
