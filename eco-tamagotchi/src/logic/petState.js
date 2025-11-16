@@ -2,7 +2,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { getXpForAction } from './impact_model';
-// import { getPersonalityMessage } from './personality';  // ❌ not needed anymore
 import { getStageForLevel } from './evolutions';
 
 const STORAGE_KEY = 'ECO_PET_STATE';
@@ -13,9 +12,9 @@ const defaultPet = {
   mood: 'neutral',
   xp: 0,
   level: 1,
-  // lastActionId: null,          // ❌ only used for messages; can drop
-  // message: "Hi! I'm your eco-pet 🌱",
-  stage: getStageForLevel(1), // { name: 'Sprout', ... }
+  // lastActionId: null,         // no longer needed
+  // message: "Hi! I'm your eco-pet 🌱", // no more default message
+  stage: getStageForLevel(1),   // { name: 'Sprout', ... }
   lastUpdated: Date.now(),
 };
 
@@ -39,7 +38,7 @@ async function savePetState(pet) {
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(pet));
 }
 
-// --- NEW: LOAD HISTORY ---
+// --- LOAD HISTORY ---
 export async function loadHistory() {
   try {
     const data = await AsyncStorage.getItem(HISTORY_KEY);
@@ -51,12 +50,12 @@ export async function loadHistory() {
   }
 }
 
-// --- NEW: SAVE HISTORY ---
+// --- SAVE HISTORY ---
 async function saveHistory(history) {
   await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(history));
 }
 
-// --- NEW: ADD HISTORY ENTRY ---
+// --- ADD HISTORY ENTRY ---
 async function addHistoryEntry(actionType, xpGain) {
   const history = await loadHistory();
 
@@ -96,12 +95,12 @@ function computeLevel(xp) {
 }
 
 // --- LOG ACTIONS (called by UI when you press buttons) ---
-export async function logAction(actionType /*, detail */) {
+export async function logAction(actionType, detail) {
   let pet = await loadPetState();
   pet = applyDecay(pet);
 
   // 1. Get XP reward based on which action it is
-  const xpGain = getXpForAction(actionType);
+  const xpGain = getXpForAction(actionType, detail);
   pet.xp += xpGain;
 
   // 2. Update level from XP
@@ -110,7 +109,7 @@ export async function logAction(actionType /*, detail */) {
   // 3. Update evolution stage
   pet.stage = getStageForLevel(pet.level);
 
-  // 4. (removed personality message)
+  // 4. ❌ NO MORE PERSONALITY MESSAGE
   // pet.lastActionId = actionType;
   // pet.message = getPersonalityMessage(pet, actionType);
 
