@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     color: "#512051",
-    fontWeight: "800",
+    fontFamily: "PressStart2P_400Regular",
     fontSize: 16,
     letterSpacing: 0.8,
   },
