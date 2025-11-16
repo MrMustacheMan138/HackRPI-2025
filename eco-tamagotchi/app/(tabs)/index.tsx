@@ -8,29 +8,40 @@ import {
   SafeAreaView,
 } from "react-native";
 import { router } from "expo-router";
-import { getPetState, resetPet } from "../../src/logic/petState.js";
+
+// Import pet state logic (no .js extension)
+import { getPetState, resetPet } from "../../src/logic/petState";
 
 export default function HomeScreen() {
   const [hasPet, setHasPet] = useState(false);
 
-  // on first mount, check if a pet already exists
+  // Check if a pet already exists
   useEffect(() => {
     async function checkPet() {
-      const pet = await getPetState();
-      if (pet) setHasPet(true);
+      try {
+        const pet = await getPetState();
+        console.log("Loaded pet:", pet);
+
+        if (pet) {
+          setHasPet(true);
+        }
+      } catch (err) {
+        console.log("Error loading pet:", err);
+      }
     }
+
     checkPet();
   }, []);
 
   const handlePress = async () => {
-    // if no pet yet, create/reset one
+    // Create/reset pet if none exists
     if (!hasPet) {
       await resetPet();
       setHasPet(true);
     }
-    // navigate to the Pet tab
-    router.push("/(tabs)/pet");
-    navigation.navigate("Pet" as never);
+
+    // 🚀 Navigate to pet.tsx (correct path for your folder structure)
+    router.push("/pet");
   };
 
   return (
@@ -84,10 +95,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFB3DA",
     paddingHorizontal: 28,
     paddingVertical: 12,
-    marginTop: 10,
-    backgroundColor: "#FFB3DA",
-    paddingHorizontal: 30,
-    paddingVertical: 16,
     borderRadius: 999,
     shadowColor: "#F472B6",
     shadowOpacity: 0.35,
@@ -99,9 +106,5 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     fontSize: 16,
     letterSpacing: 0.8,
-    fontSize: 12,
-    fontFamily: "PressStart2P_400Regular",
-    letterSpacing: 1,
-    textAlign: "center",
   },
 });
