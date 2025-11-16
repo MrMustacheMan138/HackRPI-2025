@@ -21,9 +21,9 @@ const PET_KEY = "pet_state_v1";
 
 // Placeholder store items
 const storeItems = [
-  { id: 1, name: "Item 1", price: 50 },
-  { id: 2, name: "Item 2", price: 100 },
-  { id: 3, name: "Item 3", price: 150 },
+  { id: 1, name: "Poffle", price: 150 },
+  { id: 2, name: "Tamagotchi Wallpaper", price: 50 },
+  { id: 3, name: "Blossib", price: 150 },
 ];
 
 export default function StoreScreen() {
@@ -126,9 +126,27 @@ export default function StoreScreen() {
                   onPress={() => handlePurchase(item)}
                 >
                   <View style={styles.imageContainer}>
-                    <View style={styles.imagePlaceholder}>
+                    {item.id === 1 ? (
+                      <Image
+                        source={require("../assets/images/egg2.png")}
+                        style={styles.itemImage}
+                        resizeMode="contain"
+                      />
+                    ) : item.id === 2 ? (
+                      <Image
+                        source={require("../assets/images/wallpaper3.jpg")}
+                        style={styles.itemImage}
+                        resizeMode="contain"
+                      />
+                    ) : item.id === 3 ? (
+                      <Image
+                        source={require("../assets/images/egg3.png")}
+                        style={styles.itemImage}
+                        resizeMode="contain"
+                      />
+                    ) : (
                       <Text style={styles.placeholderText}>🎁</Text>
-                    </View>
+                    )}
                   </View>
                   <Text style={styles.itemName}>{item.name}</Text>
                   <View style={styles.priceTag}>
@@ -226,12 +244,12 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   itemBox: {
-    width: 150,
-    minWidth: 100,
-    maxWidth: 200,
+    width: 180,
+    minWidth: 140,
+    maxWidth: 250,
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    padding: 12,
+    padding: 16,
     marginBottom: 15,
     marginHorizontal: 10,
     alignItems: "center",
@@ -252,12 +270,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  imagePlaceholder: {
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FFE8F7",
+  itemImage: {
+    width: "80%",
+    height: "80%",
   },
   placeholderText: {
     fontSize: 32,
