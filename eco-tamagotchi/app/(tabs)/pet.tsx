@@ -93,7 +93,6 @@ export default function PetScreen() {
     useState<Achievement | null>(null);
   const toastAnim = useRef(new Animated.Value(0)).current;
 
-  // 🔁 Load pet state & history
   useEffect(() => {
     let isMounted = true;
 
