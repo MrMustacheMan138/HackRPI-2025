@@ -50,9 +50,9 @@ type PetState = {
 };
 
 function getPetImage(level: number) {
-  if (level >= 4) return require("../../assets/images/level3.png");
-  if (level >= 3) return require("../../assets/images/level2.png");
-  if (level >= 2) return require("../../assets/images/blob.gif");
+  if (level >= 64) return require("../../assets/images/level3.png");
+  if (level >= 32) return require("../../assets/images/level2.png");
+  if (level >= 16) return require("../../assets/images/blob.gif");
   return require("../../assets/images/egg.gif");
 }
 
@@ -182,7 +182,7 @@ export default function PetScreen() {
           </View>
         </View>
       </ImageBackground>
-      
+
       {/* Action detail modal */}
       <Modal
         visible={isActionModalVisible}
