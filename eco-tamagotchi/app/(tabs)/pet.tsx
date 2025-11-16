@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
   // 💖 bottom action buttons (like Tamagotchi buttons area)
   actionsWrapper: {
     marginTop: 12,
-    width: "80%",
+    width: "50%",
     gap: 10,
   },
   actionButton: {
