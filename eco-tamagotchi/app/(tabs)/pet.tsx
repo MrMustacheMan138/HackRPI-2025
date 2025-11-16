@@ -76,11 +76,16 @@ export default function PetScreen() {
     lastUpdated: Date.now(),
     actions: {},
   });
-  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [historyVisible, setHistoryVisible] = useState(false);
+  const [achievementsVisible, setAchievementsVisible] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
   const [pendingActionType, setPendingActionType] =
     useState<ActionType | null>(null);
   const [isActionModalVisible, setIsActionModalVisible] = useState(false);
+
+  // Side button animations
+  const logButtonAnim = useRef(new Animated.Value(0)).current;
+  const achButtonAnim = useRef(new Animated.Value(0)).current;
 
   // Achievement toast state
   const [toastVisible, setToastVisible] = useState(false);
@@ -88,7 +93,7 @@ export default function PetScreen() {
     useState<Achievement | null>(null);
   const toastAnim = useRef(new Animated.Value(0)).current;
 
-  // 🔁 Load pet state & history and refresh periodically so mood/runaway update live
+  // 🔁 Load pet state & history
   useEffect(() => {
     let isMounted = true;
 
@@ -106,9 +111,7 @@ export default function PetScreen() {
       }
     }
 
-    // call once
     fetchPet();
-    // then every 5 seconds (tune this)
     const intervalId = setInterval(fetchPet, 5000);
 
     return () => {
@@ -120,7 +123,7 @@ export default function PetScreen() {
   // Handle actions
   const handleAction = async (actionType: ActionType, detail?: ActionDetail) => {
     const oldLevel = pet.level;
-    const updatedPet = await logAction(actionType, detail); // petState.js applies decay + xp + mood
+    const updatedPet = await logAction(actionType, detail);
     setPet(updatedPet);
 
     const historyData = await loadHistory();
@@ -141,7 +144,6 @@ export default function PetScreen() {
     setPendingActionType(null);
   };
 
-  // Reset pet
   const handleResetPet = async () => {
     const newPet = await resetPet();
     setPet(newPet);
@@ -149,10 +151,8 @@ export default function PetScreen() {
     setHistory(historyData);
   };
 
-  // Check achievements dynamically
   const checkAchievements = (updatedPet: PetState, oldLevel: number) => {
     const unlockedAchievements = achievements.filter((ach) => {
-      // Level requirement
       if (
         ach.requirement.level &&
         updatedPet.level >= ach.requirement.level &&
@@ -161,7 +161,6 @@ export default function PetScreen() {
         return true;
       }
 
-      // Action requirement
       if (ach.requirement.action) {
         const count = updatedPet.actions?.[ach.requirement.action] || 0;
         return count >= ach.requirement.count;
@@ -173,7 +172,6 @@ export default function PetScreen() {
     unlockedAchievements.forEach(showAchievementToast);
   };
 
-  // Toast animation
   const showAchievementToast = (achievement: Achievement) => {
     setCurrentAchievement(achievement);
     setToastVisible(true);
@@ -195,6 +193,21 @@ export default function PetScreen() {
     });
   };
 
+  // Animate side buttons
+  useEffect(() => {
+    Animated.timing(logButtonAnim, {
+      toValue: historyVisible ? -80 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(achButtonAnim, {
+      toValue: achievementsVisible ? -80 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [historyVisible, achievementsVisible]);
+
   const petImage = getPetImage(pet.level);
   const stageName = pet.stage?.name ?? "Egg";
 
@@ -210,26 +223,38 @@ export default function PetScreen() {
           <Text style={styles.coinText}>${pet.coins || 0}</Text>
         </View>
 
-        {/* History Sidebar button */}
-        <TouchableOpacity
-          style={styles.floatingHistoryButton}
-          onPress={() => setSidebarVisible(true)}
+        {/* Side Buttons */}
+        <Animated.View
+          style={[styles.sideButton, { transform: [{ translateX: logButtonAnim }] }]}
         >
-          <Text style={styles.floatingHistoryText}>☰</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.sideButtonInner}
+            onPress={() => setHistoryVisible(true)}
+          >
+            <Text style={styles.sideButtonText}>Action Log</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        <Animated.View
+          style={[styles.sideButton, { bottom: 100, transform: [{ translateX: achButtonAnim }] }]}
+        >
+          <TouchableOpacity
+            style={styles.sideButtonInner}
+            onPress={() => setAchievementsVisible(true)}
+          >
+            <Text style={styles.sideButtonText}>Achievements</Text>
+          </TouchableOpacity>
+        </Animated.View>
 
         {/* Centered machine + screen + buttons */}
         <View style={styles.background}>
           <View style={styles.shellWrapper}>
             <Text style={styles.appTitle}>Tama</Text>
-
-            {/* Tamagotchi shell */}
             <ImageBackground
               source={shellImage}
               style={styles.shell}
               resizeMode="contain"
             >
-              {/* White screen area INSIDE the machine art */}
               <View style={styles.screen}>
                 <Image
                   source={petImage}
@@ -243,7 +268,6 @@ export default function PetScreen() {
                 </Text>
                 <Text style={styles.petStat}>XP: {pet.xp}</Text>
 
-                {/* Buttons now live inside the white screen area */}
                 <View style={styles.actionsWrapper}>
                   <TouchableOpacity
                     style={[styles.actionButton, styles.recycleButton]}
@@ -270,184 +294,51 @@ export default function PetScreen() {
             </ImageBackground>
           </View>
         </View>
-      </ImageBackground>
 
-      {/* Action modal */}
-      <Modal
-        visible={isActionModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsActionModalVisible(false)}
-      >
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgba(0,0,0,0.4)",
+        {/* History / Achievements Sidebar */}
+        <HistorySidebar
+          visible={historyVisible || achievementsVisible}
+          onClose={() => {
+            setHistoryVisible(false);
+            setAchievementsVisible(false);
           }}
-        >
-          <View
-            style={{
-              width: "90%",
-              maxWidth: 420,
-              borderRadius: 28,
-              padding: 22,
-              backgroundColor: "#FFE8F7",
-              alignSelf: "center",
-            }}
+          history={history}
+          petActions={pet.actions}
+          achievements={achievements}
+          onResetPet={handleResetPet}
+        />
+
+        {/* Achievement toast */}
+        {toastVisible && currentAchievement && (
+          <Animated.View
+            style={[
+              styles.toastContainer,
+              {
+                opacity: toastAnim,
+                transform: [
+                  {
+                    translateY: toastAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-100, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
           >
-            <Text
-              style={{
-                fontFamily: "PressStart2P_400Regular",
-                fontSize: 20,
-                fontWeight: "700",
-                textAlign: "center",
-                marginBottom: 12,
-                color: "#7C3AED",
-              }}
-            >
-              {pendingActionType === "recycle" && "What did you recycle?"}
-              {pendingActionType === "walk" && "How long did you walk?"}
-              {pendingActionType === "energySave" && "How did you save energy?"}
-            </Text>
-
-            {pendingActionType === "recycle" &&
-              [{label: "Plastic", xp: 5}, {label: "Paper", xp: 5}, {label: "Electronics", xp: 20}].map((item) => (
-                <Pressable
-                  key={item.label}
-                  onPress={() => handleConfirmAction(item.label as ActionDetail)}
-                  style={{
-                    paddingVertical: 10,
-                    paddingHorizontal: 14,
-                    borderRadius: 999,
-                    backgroundColor: "#FFF",
-                    marginBottom: 8,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontFamily: "PressStart2P_400Regular",
-                      textAlign: "center",
-                    }}
-                  >
-                    {item.label}{" "}
-                    <Text style={{ fontSize: 10, color: "#22C55E" }}>+{item.xp}XP</Text>
-                  </Text>
-                </Pressable>
-              ))}
-
-            {pendingActionType === "walk" &&
-              [{label: "Short walk", xp: 5}, {label: "Medium walk", xp: 10}, {label: "Long walk", xp: 15}].map((item) => (
-                <Pressable
-                  key={item.label}
-                  onPress={() => handleConfirmAction(item.label as ActionDetail)}
-                  style={{
-                    paddingVertical: 10,
-                    paddingHorizontal: 14,
-                    borderRadius: 999,
-                    backgroundColor: "#FFF",
-                    marginBottom: 8,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontFamily: "PressStart2P_400Regular",
-                      textAlign: "center",
-                    }}
-                  >
-                    {item.label}{" "}
-                    <Text style={{ fontSize: 10, color: "#22C55E" }}>+{item.xp}XP</Text>
-                  </Text>
-                </Pressable>
-              ))}
-
-            {pendingActionType === "energySave" &&
-              [{label: "Turned off lights", xp: 3}, {label: "Shorter shower", xp: 5}, {label: "Unplugged devices", xp: 5}].map(
-                (item) => (
-                  <Pressable
-                    key={item.label}
-                    onPress={() =>
-                      handleConfirmAction(item.label as ActionDetail)
-                    }
-                    style={{
-                      paddingVertical: 10,
-                      paddingHorizontal: 14,
-                      borderRadius: 999,
-                      backgroundColor: "#FFF",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: "PressStart2P_400Regular",
-                        textAlign: "center",
-                      }}
-                    >
-                      {item.label}{" "}
-                      <Text style={{ fontSize: 10, color: "#22C55E" }}>+{item.xp}XP</Text>
-                  </Text>
-                  </Pressable>
-                )
-              )}
-
-            <Pressable
-              onPress={() => setIsActionModalVisible(false)}
-              style={{ marginTop: 8, alignSelf: "center" }}
-            >
-              <Text
-                style={{
-                  fontFamily: "PressStart2P_400Regular",
-                  color: "#6B7280",
-                }}
-              >
-                Cancel
+            <Image
+              source={require("../../assets/images/trophy_placeholder.png")}
+              style={styles.toastIcon}
+            />
+            <View style={{ marginLeft: 12 }}>
+              <Text style={styles.toastTitle}>{currentAchievement.title}</Text>
+              <Text style={styles.toastDescription}>
+                {currentAchievement.description}
               </Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
-      {/* History Sidebar */}
-      <HistorySidebar
-        visible={sidebarVisible}
-        onClose={() => setSidebarVisible(false)}
-        history={history}
-        petActions={pet.actions}
-        achievements={achievements}
-        onResetPet={handleResetPet}
-      />
-
-      {/* Achievement toast */}
-      {toastVisible && currentAchievement && (
-        <Animated.View
-          style={[
-            styles.toastContainer,
-            {
-              opacity: toastAnim,
-              transform: [
-                {
-                  translateY: toastAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-100, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <Image
-            source={require("../../assets/images/trophy_placeholder.png")}
-            style={styles.toastIcon}
-          />
-          <View style={{ marginLeft: 12 }}>
-            <Text style={styles.toastTitle}>{currentAchievement.title}</Text>
-            <Text style={styles.toastDescription}>
-              {currentAchievement.description}
-            </Text>
-          </View>
-        </Animated.View>
-      )}
+            </View>
+          </Animated.View>
+        )}
+      </ImageBackground>
     </SafeAreaView>
   );
 }
@@ -456,177 +347,29 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#000" },
   backgroundImage: { flex: 1, width: "100%", height: "100%" },
   background: { flex: 1, justifyContent: "center", alignItems: "center" },
-
-  // Wraps the machine + buttons
-  shellWrapper: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  // The Tamagotchi shell image
-  shell: {
-    width: 350,
-    height: 350,
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative", // so the screen can be absolutely positioned
-  },
-
-  // White screen aligned to your art
-  screen: {
-    position: "absolute",
-    top: "26%",   // tweak these four to line up with the white square
-    left: "22%",
-    right: "22%",
-    bottom: "30%",
-    backgroundColor: "transparent", // let the machine's white show through
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-  },
-
-  appTitle: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 18,
-    color: "#7C3AED",
-    textAlign: "center",
-    letterSpacing: 1.5,
-    marginBottom: 10,
-  },
-
+  shellWrapper: { alignItems: "center", justifyContent: "center" },
+  shell: { width: 350, height: 350, alignItems: "center", justifyContent: "center", position: "relative" },
+  screen: { position: "absolute", top: "26%", left: "22%", right: "22%", bottom: "30%", backgroundColor: "transparent", borderRadius: 12, alignItems: "center", justifyContent: "flex-start", paddingHorizontal: 8, paddingVertical: 6 },
+  appTitle: { fontFamily: "PressStart2P_400Regular", fontSize: 18, color: "#7C3AED", textAlign: "center", letterSpacing: 1.5, marginBottom: 10 },
   petImage: { width: 80, height: 80, marginBottom: 6 },
-
-  petName: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 16,
-    color: "#FB7185",
-    marginBottom: 4,
-    textAlign: "center",
-  },
-
-  petLevel: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 12,
-    color: "#7C3AED",
-    marginBottom: 4,
-  },
-
-  petMood: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 11,
-    color: "#4B5563",
-    marginBottom: 2,
-  },
-
-  petMoodValue: {
-    fontFamily: "PressStart2P_400Regular",
-    color: "#F59E0B",
-  },
-
-  petStat: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 11,
-    color: "#6B7280",
-    marginBottom: 8,
-  },
-
-  actionsWrapper: {
-    marginTop: 8,
-    width: 220,
-    gap: 8,
-  },
-
-  actionButton: {
-    width: "100%",
-    paddingVertical: 6,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#F9A8D4",
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-  },
-
-  actionText: {
-    fontFamily: "PressStart2P_400Regular",
-    letterSpacing: 0.5,
-    fontSize: 12,
-  },
-
+  petName: { fontFamily: "PressStart2P_400Regular", fontSize: 16, color: "#FB7185", marginBottom: 4, textAlign: "center" },
+  petLevel: { fontFamily: "PressStart2P_400Regular", fontSize: 12, color: "#7C3AED", marginBottom: 4 },
+  petMood: { fontFamily: "PressStart2P_400Regular", fontSize: 11, color: "#4B5563", marginBottom: 2 },
+  petMoodValue: { fontFamily: "PressStart2P_400Regular", color: "#F59E0B" },
+  petStat: { fontFamily: "PressStart2P_400Regular", fontSize: 11, color: "#6B7280", marginBottom: 8 },
+  actionsWrapper: { marginTop: 8, width: 220, gap: 8 },
+  actionButton: { width: "100%", paddingVertical: 6, borderRadius: 999, alignItems: "center", justifyContent: "center", shadowColor: "#F9A8D4", shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+  actionText: { fontFamily: "PressStart2P_400Regular", letterSpacing: 0.5, fontSize: 12 },
   recycleButton: { backgroundColor: "#BBF7D0" },
   walkButton: { backgroundColor: "#BFDBFE" },
   energyButton: { backgroundColor: "#FDE68A" },
-
-  // Coin counter
-  coinCounter: {
-    position: "absolute",
-    top: 20,
-    left: 30,
-    backgroundColor: "#FFD700",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: "#FFA500",
-    zIndex: 100,
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
-
-  coinText: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 16,
-    color: "#000",
-    fontWeight: "bold",
-  },
-
-  floatingHistoryButton: {
-    position: "absolute",
-    top: 20,
-    right: 30,
-    padding: 8,
-    zIndex: 100,
-  },
-
-  floatingHistoryText: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#4B5563",
-  },
-
-  // Achievement toast
-  toastContainer: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    right: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#1F2937",
-    padding: 12,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-  },
-
+  coinCounter: { position: "absolute", top: 20, left: 30, backgroundColor: "#FFD700", paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 2, borderColor: "#FFA500", zIndex: 100, shadowColor: "#000", shadowOpacity: 0.3, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
+  coinText: { fontFamily: "PressStart2P_400Regular", fontSize: 16, color: "#000", fontWeight: "bold" },
+  sideButton: { position: "absolute", right: 10, top: 50, zIndex: 100 },
+  sideButtonInner: { backgroundColor: "#7C3AED", paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8 },
+  sideButtonText: { color: "#FFF", fontFamily: "PressStart2P_400Regular", fontSize: 12 },
+  toastContainer: { position: "absolute", top: 50, left: 20, right: 20, flexDirection: "row", alignItems: "center", backgroundColor: "#1F2937", padding: 12, borderRadius: 12, shadowColor: "#000", shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
   toastIcon: { width: 48, height: 48, borderRadius: 8 },
-
-  toastTitle: {
-    fontFamily: "PressStart2P_400Regular",
-    color: "#FFF",
-    fontSize: 14,
-  },
-
-  toastDescription: {
-    fontFamily: "PressStart2P_400Regular",
-    color: "#D1D5DB",
-    fontSize: 10,
-  },
+  toastTitle: { fontFamily: "PressStart2P_400Regular", color: "#FFF", fontSize: 14 },
+  toastDescription: { fontFamily: "PressStart2P_400Regular", color: "#D1D5DB", fontSize: 10 },
 });
