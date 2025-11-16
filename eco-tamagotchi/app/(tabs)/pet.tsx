@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { getPetState, logAction, resetPet, loadHistory} from "../../src/logic/petState.js";
 import HistorySidebar from "./components/history_sidebar";
-import { playSound } from "../../src/utils/sounds";
+//import { playSound } from "../../src/utils/sounds";
 
 type ActionType = "recycle" | "walk" | "energySave";
 
@@ -60,14 +60,14 @@ export default function PetScreen() {
     
     // Check if leveled up and play sound
     if (updatedPet.level > oldLevel) {
-        playSound('levelUp');
+        //playSound('levelUp');
     }
     
     // Refresh history after action
     const historyData = await loadHistory();
     setHistory(historyData);
     };
-    
+
   const petImage = getPetImage(pet.level);
   const stageName = pet.stage?.name ?? "Sprout";
 
@@ -131,9 +131,6 @@ export default function PetScreen() {
             </TouchableOpacity>
           </View>
           {/* Reset */}
-          <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-            <Text style={styles.resetText}>RESET PET 🔄</Text>
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -261,7 +258,7 @@ const styles = StyleSheet.create({
   // 💖 bottom action buttons (like Tamagotchi buttons area)
   actionsWrapper: {
     marginTop: 12,
-    width: "80%",
+    width: "50%",
     gap: 10,
   },
   actionButton: {
