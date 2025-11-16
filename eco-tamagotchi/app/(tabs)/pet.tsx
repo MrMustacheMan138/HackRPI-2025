@@ -40,6 +40,7 @@ type PetState = {
   mood: string;
   xp: number;
   level: number;
+  coins?: number;
   lastUpdated: number;
   message?: string;
   stage?: { name: string };
@@ -170,6 +171,12 @@ export default function PetScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ImageBackground source={bgImage} style={styles.backgroundImage} resizeMode="cover">
+        {/* Coin Counter - TOP LEFT */}
+        <View style={styles.coinCounter}>
+          <Text style={styles.coinText}>💰 {pet.coins || 0}</Text>
+        </View>
+
+        {/* Floating History Button - TOP RIGHT */}
         <TouchableOpacity
           style={styles.floatingHistoryButton}
           onPress={() => setSidebarVisible(true)}
@@ -281,6 +288,31 @@ const styles = StyleSheet.create({
   recycleButton: { backgroundColor: "#BBF7D0" },
   walkButton: { backgroundColor: "#BFDBFE" },
   energyButton: { backgroundColor: "#FDE68A" },
+  
+  // Coin counter (top left)
+  coinCounter: {
+    position: "absolute",
+    top: 20,
+    left: 30,
+    backgroundColor: "#FFD700",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#FFA500",
+    zIndex: 100,
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  coinText: {
+    fontFamily: "PressStart2P_400Regular",
+    fontSize: 16,
+    color: "#000",
+    fontWeight: "bold",
+  },
+  
   floatingHistoryButton: { position: "absolute", top: 20, right: 30, padding: 8, zIndex: 100 },
   floatingHistoryText: { fontSize: 24, fontWeight: "700", color: "#4B5563" },
 

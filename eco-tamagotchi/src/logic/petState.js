@@ -21,11 +21,15 @@ const ACTION_XP = {
 // Simple level-up rule: every 20 xp = +1 level
 const XP_PER_LEVEL = 20;
 
+// Coins earned per level
+const COINS_PER_LEVEL = 10;
+
 function defaultPet() {
   return {
     mood: "happy",
     xp: 0,
     level: 1,
+    coins: 0,
     lastUpdated: Date.now(),
     stage: { name: "Egg" },
     hasRunAway: false, // 👈 important flag
@@ -136,13 +140,20 @@ export async function logAction(actionType, detail) {
   // XP gain
   const xpGain = ACTION_XP[actionType] ?? 5;
   const newXp = (pet.xp || 0) + xpGain;
+  const oldLevel = pet.level || 1;
   const newLevel = computeLevelFromXp(newXp);
   const newStage = computeStage(newLevel);
+
+  // Award coins if leveled up
+  const levelsGained = newLevel - oldLevel;
+  const coinsEarned = levelsGained > 0 ? levelsGained * COINS_PER_LEVEL : 0;
+  const newCoins = (pet.coins || 0) + coinsEarned;
 
   const updatedPet = {
     ...pet,
     xp: newXp,
     level: newLevel,
+    coins: newCoins,
     stage: newStage,
     mood: improveMood(pet.mood),
     lastUpdated: Date.now(),
@@ -158,6 +169,7 @@ export async function logAction(actionType, detail) {
     xpGain,
     newXp,
     newLevel,
+    coinsEarned,
   });
 
   return updatedPet;
