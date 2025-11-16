@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
-  ImageBackground,
 } from "react-native";
 import { router } from "expo-router";
 
@@ -55,18 +54,11 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <Text style={styles.title}>Eco-Tamagotchi🌱</Text>
-        
-        <ImageBackground
-          source={require("../../assets/images/cloud.png")}
-          style={styles.cloudContainer}
-          resizeMode="stretch"
-        >
-          <Text style={styles.subtitle}>
-            Take care of your Tamagotchi friend by logging real-world eco-actions
-            like recycling, walking, and saving energy. As you build habits, your
-            pet grows happier and evolves!
-          </Text>
-        </ImageBackground>
+        <Text style={styles.subtitle}>
+          Take care of your Tamagotchi friend by logging real-world eco-actions
+          like recycling, walking, and saving energy. As you build habits, your
+          pet grows happier and evolves!
+        </Text>
 
         <TouchableOpacity style={styles.ctaButton} onPress={handlePress}>
           <Text style={styles.ctaText}>
@@ -100,24 +92,19 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     lineHeight: 32, // Avoids clipping with pixel font
   },
-
-  cloudContainer: {
-    width: 700,
-    height: 400,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 40,
-  },
     
   subtitle: {
     fontSize: 12,
     fontFamily: "PressStart2P_400Regular",
     color: "#4B5563",
     textAlign: "center",
+    marginBottom: 40,
     lineHeight: 22,
-    maxWidth: 500,
-    paddingHorizontal: 100,
-    paddingVertical: 40,
+
+    // ⭐ NEW — centers the paragraph & reduces width
+    maxWidth: 900,      // limit long lines
+    width: "85%",       // responsive padding on each side
+    alignSelf: "center",
   },
   ctaButton: {
     marginTop: 4,
