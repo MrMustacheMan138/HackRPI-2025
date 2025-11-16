@@ -111,7 +111,7 @@ export default function HistorySidebar({
             style={styles.resetButton}
             onPress={handleResetPress}
           >
-            <Text style={styles.resetText}>Reset to Egg 🔄</Text>
+            <Text style={styles.resetText}>Reset to Egg</Text>
           </TouchableOpacity>
         )}
       </View>
