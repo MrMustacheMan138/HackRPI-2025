@@ -131,9 +131,6 @@ export default function PetScreen() {
             </TouchableOpacity>
           </View>
           {/* Reset */}
-          <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-            <Text style={styles.resetText}>RESET PET 🔄</Text>
-          </TouchableOpacity>
         </View>
       </View>
 
