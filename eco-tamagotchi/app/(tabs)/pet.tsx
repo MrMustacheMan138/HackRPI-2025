@@ -53,7 +53,7 @@ function getPetImage(level: number) {
   if (level >= 4) return require("../../assets/images/level3.png");
   if (level >= 3) return require("../../assets/images/level2.png");
   if (level >= 2) return require("../../assets/images/level1.png");
-  return require("../../assets/images/IMG_02011.png");
+  return require("../../assets/images/egg.gif");
 }
 
 export default function PetScreen() {
@@ -428,8 +428,8 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   petImage: {
-    width: 120,
-    height: 120,
+    width: 140,
+    height: 140,
     marginBottom: 8,
   },
 
