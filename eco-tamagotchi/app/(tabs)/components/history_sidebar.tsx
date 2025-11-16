@@ -24,7 +24,7 @@ type Props = {
   onResetPet?: () => void;
 };
 
-// Static mappings
+// --- Static mappings ---
 const actionEmojis: Record<HistoryEntry["action"], string> = {
   recycle: "♻️",
   walk: "🚶",
@@ -37,13 +37,14 @@ const actionNames: Record<HistoryEntry["action"], string> = {
   energySave: "Saved energy",
 };
 
+// Correct relative paths to assets
 const actionIcons: Record<HistoryEntry["action"], any> = {
-  recycle: require("../../assets/images/trophy_placeholder.png"),
-  walk: require("../../assets/images/trophy_placeholder.png"),
-  energySave: require("../../assets/images/trophy_placeholder.png"),
+  recycle: require("../../../assets/images/trophy_placeholder.png"),
+  walk: require("../../../assets/images/trophy_placeholder.png"),
+  energySave: require("../../../assets/images/trophy_placeholder.png"),
 };
 
-// Format timestamps
+// --- Timestamp formatter ---
 function formatTimestamp(timestamp: number) {
   const now = Date.now();
   const diff = now - timestamp;
@@ -58,7 +59,7 @@ function formatTimestamp(timestamp: number) {
   return `${days}d ago`;
 }
 
-// Animated XP component
+// --- Animated XP component ---
 function AnimatedXP({ xp }: { xp: number }) {
   const anim = useRef(new Animated.Value(0)).current;
 
@@ -70,15 +71,8 @@ function AnimatedXP({ xp }: { xp: number }) {
     }).start();
   }, [xp]);
 
-  const translateY = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [10, 0],
-  });
-
-  const opacity = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-  });
+  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] });
+  const opacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0, 1] });
 
   return (
     <Animated.Text style={[styles.xp, { transform: [{ translateY }], opacity }]}>
@@ -87,6 +81,7 @@ function AnimatedXP({ xp }: { xp: number }) {
   );
 }
 
+// --- Main component ---
 export default function HistorySidebar({
   visible,
   onClose,
@@ -142,6 +137,7 @@ export default function HistorySidebar({
   );
 }
 
+// --- Styles ---
 const styles = StyleSheet.create({
   overlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 },
   backdrop: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.45)" },
