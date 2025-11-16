@@ -10,6 +10,7 @@ import {
   Modal,
   Pressable,
   ImageBackground,
+  Animated,
 } from "react-native";
 import {
   getPetState,
@@ -18,17 +19,13 @@ import {
   loadHistory,
 } from "../../src/logic/petState.js";
 import HistorySidebar from "./components/history_sidebar";
-// import { playSound } from "../../src/utils/sounds";
-import {
-  Baloo2_400Regular,
-  Baloo2_600SemiBold,
-} from "@expo-google-fonts/baloo-2";
 import { PressStart2P_400Regular } from "@expo-google-fonts/press-start-2p";
 
+// Background image
 const bgImage = require("../../assets/images/newnew.png");
 
+// Types
 type ActionType = "recycle" | "walk" | "energySave";
-
 type ActionDetail =
   | "Plastic"
   | "Paper"
@@ -39,7 +36,6 @@ type ActionDetail =
   | "Turned off lights"
   | "Shorter shower"
   | "Unplugged devices";
-
 type PetState = {
   mood: string;
   xp: number;
@@ -48,7 +44,25 @@ type PetState = {
   message?: string;
   stage?: { name: string };
 };
+type Achievement = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+};
 
+// Achievement icon mapping (local images)
+const achievementIcons: Record<string, any> = {
+  recycler: require("../../src/storage/achievements_icons/recycler.png"),
+  first_steps: require("../../src/storage/achievements_icons/first_steps.png"),
+  energy_saver: require("../../src/storage/achievements_icons/energy_saver.png"),
+  level_5: require("../../src/storage/achievements_icons/level_5.png"),
+};
+
+// Load achievements from JSON
+const achievements: Achievement[] = require("../../src/storage/achievements.json");
+
+// Pet image based on level
 function getPetImage(level: number) {
   if (level >= 64) return require("../../assets/images/level3.png");
   if (level >= 32) return require("../../assets/images/level2.png");
@@ -63,14 +77,17 @@ export default function PetScreen() {
     level: 1,
     lastUpdated: Date.now(),
   });
-
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
-  const [pendingActionType, setPendingActionType] =
-    useState<ActionType | null>(null);
+  const [pendingActionType, setPendingActionType] = useState<ActionType | null>(null);
   const [isActionModalVisible, setIsActionModalVisible] = useState(false);
 
-  // Load pet state & history on mount
+  // Achievement state
+  const [toastVisible, setToastVisible] = useState(false);
+  const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
+  const toastAnim = new Animated.Value(0);
+
+  // Load pet state & history
   useEffect(() => {
     async function fetchPet() {
       const petData = await getPetState();
@@ -82,17 +99,17 @@ export default function PetScreen() {
     fetchPet();
   }, []);
 
+  // Handle actions
   const handleAction = async (actionType: ActionType, detail?: ActionDetail) => {
     const oldLevel = pet.level;
     const updatedPet = await logAction(actionType, detail);
     setPet(updatedPet);
 
-    // if (updatedPet.level > oldLevel) {
-    //   playSound("levelUp");
-    // }
-
     const historyData = await loadHistory();
     setHistory(historyData);
+
+    // Check for achievements
+    checkAchievements(updatedPet, oldLevel, actionType, detail);
   };
 
   const openActionModal = (type: ActionType) => {
@@ -107,13 +124,44 @@ export default function PetScreen() {
     setPendingActionType(null);
   };
 
-  // 🔁 RESET HANDLER – used by sidebar button
+  // Reset pet
   const handleResetPet = async () => {
-    const newPet = await resetPet();     // resets to default (egg, level 1, xp 0)
+    const newPet = await resetPet();
     setPet(newPet);
 
-    const historyData = await loadHistory(); // keep or clear history as your logic decides
+    const historyData = await loadHistory();
     setHistory(historyData);
+  };
+
+  // Check achievements
+  const checkAchievements = (updatedPet: PetState, oldLevel: number, actionType: ActionType, detail?: ActionDetail) => {
+    let unlocked: Achievement | null = null;
+
+    if (actionType === "recycle" && !history.some(h => h.action === "recycle")) {
+      unlocked = achievements.find(a => a.id === "recycler") || null;
+    } else if (actionType === "walk" && !history.some(h => h.action === "walk")) {
+      unlocked = achievements.find(a => a.id === "first_steps") || null;
+    } else if (actionType === "energySave" && !history.some(h => h.action === "energySave")) {
+      unlocked = achievements.find(a => a.id === "energy_saver") || null;
+    } else if (updatedPet.level >= 5 && oldLevel < 5) {
+      unlocked = achievements.find(a => a.id === "level_5") || null;
+    }
+
+    if (unlocked) showAchievementToast(unlocked);
+  };
+
+  // Show toast animation
+  const showAchievementToast = (achievement: Achievement) => {
+    setCurrentAchievement(achievement);
+    setToastVisible(true);
+    Animated.sequence([
+      Animated.timing(toastAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
+      Animated.delay(2000),
+      Animated.timing(toastAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
+    ]).start(() => {
+      setToastVisible(false);
+      setCurrentAchievement(null);
+    });
   };
 
   const petImage = getPetImage(pet.level);
@@ -121,13 +169,7 @@ export default function PetScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Background image wraps the main content */}
-      <ImageBackground
-        source={bgImage}
-        style={styles.backgroundImage}
-        resizeMode="cover"
-      >
-        {/* Floating History Button - TOP RIGHT */}
+      <ImageBackground source={bgImage} style={styles.backgroundImage} resizeMode="cover">
         <TouchableOpacity
           style={styles.floatingHistoryButton}
           onPress={() => setSidebarVisible(true)}
@@ -135,19 +177,12 @@ export default function PetScreen() {
           <Text style={styles.floatingHistoryText}>☰</Text>
         </TouchableOpacity>
 
-        {/* Center content over background */}
         <View style={styles.background}>
           <View style={styles.container}>
-            {/* Title */}
             <Text style={styles.appTitle}>Tama</Text>
 
-            {/* Pet card */}
             <View style={styles.petCard}>
-              <Image
-                source={petImage}
-                style={styles.petImage}
-                resizeMode="contain"
-              />
+              <Image source={petImage} style={styles.petImage} resizeMode="contain" />
               <Text style={styles.petName}>{stageName}</Text>
               <Text style={styles.petMood}>
                 Mood: <Text style={styles.petMoodValue}>{pet.mood}</Text>
@@ -156,26 +191,14 @@ export default function PetScreen() {
               <Text style={styles.petStat}>Level: {pet.level}</Text>
             </View>
 
-            {/* Actions */}
             <View style={styles.actionsWrapper}>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.recycleButton]}
-                onPress={() => openActionModal("recycle")}
-              >
+              <TouchableOpacity style={[styles.actionButton, styles.recycleButton]} onPress={() => openActionModal("recycle")}>
                 <Text style={styles.actionText}>RECYCLE</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionButton, styles.walkButton]}
-                onPress={() => openActionModal("walk")}
-              >
+              <TouchableOpacity style={[styles.actionButton, styles.walkButton]} onPress={() => openActionModal("walk")}>
                 <Text style={styles.actionText}>WALK</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionButton, styles.energyButton]}
-                onPress={() => openActionModal("energySave")}
-              >
+              <TouchableOpacity style={[styles.actionButton, styles.energyButton]} onPress={() => openActionModal("energySave")}>
                 <Text style={styles.actionText}>SAVE ENERGY</Text>
               </TouchableOpacity>
             </View>
@@ -183,127 +206,38 @@ export default function PetScreen() {
         </View>
       </ImageBackground>
 
-      {/* Action detail modal */}
-      <Modal
-        visible={isActionModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsActionModalVisible(false)}
-      >
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgba(0,0,0,0.4)",
-          }}
-        >
-          <View
-            style={{
-              width: "90%",
-              maxWidth: 420,
-              borderRadius: 28,
-              padding: 22,
-              backgroundColor: "#FFE8F7",
-              alignSelf: "center",
-            }}
-          >
-            <Text
-              style={{
-                fontFamily: "PressStart2P_400Regular",
-                fontSize: 20,
-                fontWeight: "700",
-                textAlign: "center",
-                marginBottom: 12,
-                color: "#7C3AED",
-              }}
-            >
+      {/* Action modal */}
+      <Modal visible={isActionModalVisible} transparent animationType="fade" onRequestClose={() => setIsActionModalVisible(false)}>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.4)" }}>
+          <View style={{ width: "90%", maxWidth: 420, borderRadius: 28, padding: 22, backgroundColor: "#FFE8F7", alignSelf: "center" }}>
+            <Text style={{ fontFamily: "PressStart2P_400Regular", fontSize: 20, fontWeight: "700", textAlign: "center", marginBottom: 12, color: "#7C3AED" }}>
               {pendingActionType === "recycle" && "What did you recycle?"}
               {pendingActionType === "walk" && "How long did you walk?"}
               {pendingActionType === "energySave" && "How did you save energy?"}
             </Text>
 
-            {/* Recycle options */}
-            {pendingActionType === "recycle" && (
-              <>
-                {["Plastic", "Paper", "Electronics"].map((option) => (
-                  <Pressable
-                    key={option}
-                    onPress={() =>
-                      handleConfirmAction(option as ActionDetail)
-                    }
-                    style={{
-                      paddingVertical: 10,
-                      paddingHorizontal: 14,
-                      borderRadius: 999,
-                      backgroundColor: "#FFFFFF",
-                      marginBottom: 8,
-                      shadowColor: "#F5C2E7",
-                      shadowOpacity: 0.2,
-                      shadowRadius: 6,
-                      shadowOffset: { width: 0, height: 2 },
-                    }}
-                  >
-                    <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
-                  </Pressable>
-                ))}
-              </>
-            )}
+            {pendingActionType === "recycle" &&
+              ["Plastic", "Paper", "Electronics"].map(option => (
+                <Pressable key={option} onPress={() => handleConfirmAction(option as ActionDetail)} style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, backgroundColor: "#FFF", marginBottom: 8 }}>
+                  <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
+                </Pressable>
+              ))}
 
-            {/* Walk options */}
-            {pendingActionType === "walk" && (
-              <>
-                {["Short walk", "Medium walk", "Long walk"].map((option) => (
-                  <Pressable
-                    key={option}
-                    onPress={() =>
-                      handleConfirmAction(option as ActionDetail)
-                    }
-                    style={{
-                      paddingVertical: 10,
-                      paddingHorizontal: 14,
-                      borderRadius: 999,
-                      backgroundColor: "#FFFFFF",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
-                  </Pressable>
-                ))}
-              </>
-            )}
+            {pendingActionType === "walk" &&
+              ["Short walk", "Medium walk", "Long walk"].map(option => (
+                <Pressable key={option} onPress={() => handleConfirmAction(option as ActionDetail)} style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, backgroundColor: "#FFF", marginBottom: 8 }}>
+                  <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
+                </Pressable>
+              ))}
 
-            {/* Energy-save options */}
-            {pendingActionType === "energySave" && (
-              <>
-                {[
-                  "Turned off lights",
-                  "Shorter shower",
-                  "Unplugged devices",
-                ].map((option) => (
-                  <Pressable
-                    key={option}
-                    onPress={() =>
-                      handleConfirmAction(option as ActionDetail)
-                    }
-                    style={{
-                      paddingVertical: 10,
-                      paddingHorizontal: 14,
-                      borderRadius: 999,
-                      backgroundColor: "#FFFFFF",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
-                  </Pressable>
-                ))}
-              </>
-            )}
+            {pendingActionType === "energySave" &&
+              ["Turned off lights", "Shorter shower", "Unplugged devices"].map(option => (
+                <Pressable key={option} onPress={() => handleConfirmAction(option as ActionDetail)} style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, backgroundColor: "#FFF", marginBottom: 8 }}>
+                  <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
+                </Pressable>
+              ))}
 
-            <Pressable
-              onPress={() => setIsActionModalVisible(false)}
-              style={{ marginTop: 8, alignSelf: "center" }}
-            >
+            <Pressable onPress={() => setIsActionModalVisible(false)} style={{ marginTop: 8, alignSelf: "center" }}>
               <Text style={{ fontFamily: "PressStart2P_400Regular", color: "#6B7280" }}>Cancel</Text>
             </Pressable>
           </View>
@@ -311,184 +245,46 @@ export default function PetScreen() {
       </Modal>
 
       {/* History sidebar */}
-      <HistorySidebar
-        visible={sidebarVisible}
-        onClose={() => setSidebarVisible(false)}
-        history={history}
-        onResetPet={handleResetPet}   // 👈 wire reset into sidebar
-      />
+      <HistorySidebar visible={sidebarVisible} onClose={() => setSidebarVisible(false)} history={history} onResetPet={handleResetPet} />
+
+      {/* Achievement Toast */}
+      {toastVisible && currentAchievement && (
+        <Animated.View style={[styles.toastContainer, { opacity: toastAnim, transform: [{ translateY: toastAnim.interpolate({ inputRange: [0, 1], outputRange: [-100, 0] }) }] }]}>
+          <Image source={achievementIcons[currentAchievement.id]} style={styles.toastIcon} />
+          <View style={{ marginLeft: 12 }}>
+            <Text style={styles.toastTitle}>{currentAchievement.title}</Text>
+            <Text style={styles.toastDescription}>{currentAchievement.description}</Text>
+          </View>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 }
 
+// Styles
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#000",
-  },
-  backgroundImage: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-  },
-  background: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  glowTop: {
-    position: "absolute",
-    top: -80,
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: "rgba(244, 187, 255, 0.55)",
-  },
-  glowBottom: {
-    position: "absolute",
-    bottom: -100,
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    backgroundColor: "rgba(186, 230, 253, 0.55)",
-  },
-  container: {
-    width: 450,
-    paddingVertical: 50,
-    paddingHorizontal: 30,
-    borderRadius: 225,
-    backgroundColor: "#FFB3DA",
-    borderWidth: 4,
-    borderColor: "#FF8CCF",
-    alignItems: "center",
-    shadowColor: "#F472B6",
-    shadowOpacity: 0.35,
-    shadowRadius: 22,
-    shadowOffset: { width: 0, height: 10 },
-  },
-  appTitle: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 18,
-    color: "#7C3AED",
-    textAlign: "center",
-    letterSpacing: 1.5,
-    marginBottom: 6,
-  },
-  appSubtitle: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 13,
-    color: "#A855F7",
-    textAlign: "center",
-    marginTop: 0,
-    marginBottom: 16,
-  },
-  petCard: {
-    width: "80%",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 24,
-    backgroundColor: "#FFFDF5",
-    borderWidth: 1.5,
-    borderColor: "#FBCFE8",
-    marginBottom: 14,
-  },
-  petEmoji: {
-    fontSize: 52,
-    marginBottom: 4,
-  },
-  petName: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 20,
-    color: "#FB7185",
-    marginBottom: 6,
-  },
-  petMood: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 15,
-    color: "#4B5563",
-    marginBottom: 2,
-  },
-  petMoodValue: {
-    fontFamily: "PressStart2P_400Regular",
-    color: "#F59E0B",
-  },
-  petStat: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 14,
-    color: "#6B7280",
-  },
-  petMessage: {
-    fontFamily: "PressStart2P_400Regular",
-    marginTop: 8,
-    fontSize: 13,
-    color: "#7C3AED",
-    textAlign: "center",
-    fontStyle: "italic",
-  },
-  petImage: {
-    width: 120,
-    height: 120,
-    marginBottom: 8,
-  },
-  actionsWrapper: {
-    marginTop: 8,
-    width: "55%",
-    gap: 8,
-  },
-  actionButton: {
-    width: "100%",
-    paddingVertical: 5,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#F9A8D4",
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  actionText: {
-    fontFamily: "PressStart2P_400Regular",
-    letterSpacing: 0.5,
-    fontSize: 14,
-  },
-  recycleButton: {
-    backgroundColor: "#BBF7D0",
-  },
-  walkButton: {
-    backgroundColor: "#BFDBFE",
-  },
-  energyButton: {
-    backgroundColor: "#FDE68A",
-  },
-  resetButton: {
-    marginTop: 18,
-    alignSelf: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 9,
-    borderRadius: 999,
-    backgroundColor: "#FECACA",
-    shadowColor: "#FCA5A5",
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
-  },
-  resetText: {
-    fontFamily: "PressStart2P_400Regular",
-    color: "#7F1D1D",
-    letterSpacing: 1.1,
-    fontSize: 12,
-  },
-  floatingHistoryButton: {
-    position: "absolute",
-    top: 20,
-    right: 30,
-    padding: 8,
-    zIndex: 100,
-  },
-  floatingHistoryText: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#4B5563",
-  },
+  safeArea: { flex: 1, backgroundColor: "#000" },
+  backgroundImage: { flex: 1, width: "100%", height: "100%" },
+  background: { flex: 1, justifyContent: "center", alignItems: "center" },
+  container: { width: 450, paddingVertical: 50, paddingHorizontal: 30, borderRadius: 225, backgroundColor: "#FFB3DA", borderWidth: 4, borderColor: "#FF8CCF", alignItems: "center" },
+  appTitle: { fontFamily: "PressStart2P_400Regular", fontSize: 18, color: "#7C3AED", textAlign: "center", letterSpacing: 1.5, marginBottom: 6 },
+  petCard: { width: "80%", alignItems: "center", paddingVertical: 10, paddingHorizontal: 10, borderRadius: 24, backgroundColor: "#FFFDF5", borderWidth: 1.5, borderColor: "#FBCFE8", marginBottom: 14 },
+  petName: { fontFamily: "PressStart2P_400Regular", fontSize: 20, color: "#FB7185", marginBottom: 6 },
+  petMood: { fontFamily: "PressStart2P_400Regular", fontSize: 15, color: "#4B5563", marginBottom: 2 },
+  petMoodValue: { fontFamily: "PressStart2P_400Regular", color: "#F59E0B" },
+  petStat: { fontFamily: "PressStart2P_400Regular", fontSize: 14, color: "#6B7280" },
+  petImage: { width: 120, height: 120, marginBottom: 8 },
+  actionsWrapper: { marginTop: 8, width: "55%", gap: 8 },
+  actionButton: { width: "100%", paddingVertical: 5, borderRadius: 999, alignItems: "center", justifyContent: "center", shadowColor: "#F9A8D4", shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+  recycleButton: { backgroundColor: "#BBF7D0" },
+  walkButton: { backgroundColor: "#BFDBFE" },
+  energyButton: { backgroundColor: "#FDE68A" },
+  floatingHistoryButton: { position: "absolute", top: 20, right: 30, padding: 8, zIndex: 100 },
+  floatingHistoryText: { fontSize: 24, fontWeight: "700", color: "#4B5563" },
+
+  // Achievement toast
+  toastContainer: { position: "absolute", top: 50, left: 20, right: 20, flexDirection: "row", alignItems: "center", backgroundColor: "#1F2937", padding: 12, borderRadius: 12, shadowColor: "#000", shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
+  toastIcon: { width: 48, height: 48, borderRadius: 8 },
+  toastTitle: { fontFamily: "PressStart2P_400Regular", color: "#FFF", fontSize: 14 },
+  toastDescription: { fontFamily: "PressStart2P_400Regular", color: "#D1D5DB", fontSize: 10 },
 });
