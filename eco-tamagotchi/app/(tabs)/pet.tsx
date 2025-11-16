@@ -108,7 +108,7 @@ export default function PetScreen() {
   };
 
   const petImage = getPetImage(pet.level);
-  const stageName = pet.stage?.name ?? "Sprout";
+  const stageName = pet.stage?.name ?? "Egg";
 
   return (
     <SafeAreaView style={styles.safeArea}>
