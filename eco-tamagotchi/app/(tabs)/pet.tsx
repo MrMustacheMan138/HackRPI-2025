@@ -1,4 +1,3 @@
-// app/(tabs)/pet.tsx
 import React, { useEffect, useState, useRef } from "react";
 import {
   View,
@@ -44,21 +43,14 @@ type PetState = {
   lastUpdated: number;
   message?: string;
   stage?: { name: string };
-  // hasRunAway?: boolean; // optional if you want to read it in UI later
+  actions?: Record<string, number>;
 };
 type Achievement = {
   id: string;
   title: string;
   description: string;
   icon: string;
-};
-
-// Achievement icon mapping (local images)
-const achievementIcons: Record<string, any> = {
-  recycler: require("../../assets/images/trophy_placeholder.png"),
-  first_steps: require("../../assets/images/trophy_placeholder.png"),
-  energy_saver: require("../../assets/images/trophy_placeholder.png"),
-  level_5: require("../../assets/images/trophy_placeholder.png"),
+  requirement: any;
 };
 
 // Load achievements from JSON
@@ -78,6 +70,7 @@ export default function PetScreen() {
     xp: 0,
     level: 1,
     lastUpdated: Date.now(),
+    actions: {},
   });
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
@@ -85,53 +78,32 @@ export default function PetScreen() {
     useState<ActionType | null>(null);
   const [isActionModalVisible, setIsActionModalVisible] = useState(false);
 
-  // Achievement state
+  // Achievement toast state
   const [toastVisible, setToastVisible] = useState(false);
-  const [currentAchievement, setCurrentAchievement] =
-    useState<Achievement | null>(null);
+  const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
   const toastAnim = useRef(new Animated.Value(0)).current;
 
-  // 🔁 Load pet state & history and refresh periodically so mood decay + "gone" show live
+  // Load pet state & history
   useEffect(() => {
-    let isMounted = true;
-
     async function fetchPet() {
-      try {
-        const petData = await getPetState(); // applies time-based decay & possible run-away
-        const historyData = await loadHistory();
-
-        if (!isMounted) return;
-
-        if (petData) setPet(petData);
-        setHistory(historyData);
-      } catch (e) {
-        console.log("Error loading pet:", e);
-      }
+      const petData = await getPetState();
+      const historyData = await loadHistory();
+      if (petData) setPet(petData);
+      setHistory(historyData);
     }
-
-    // Call once immediately
     fetchPet();
-
-    // Then every 5 seconds (tune this)
-    const intervalId = setInterval(fetchPet, 5000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(intervalId);
-    };
   }, []);
 
   // Handle actions
   const handleAction = async (actionType: ActionType, detail?: ActionDetail) => {
     const oldLevel = pet.level;
-    const updatedPet = await logAction(actionType, detail); // this also applies decay
+    const updatedPet = await logAction(actionType, detail);
     setPet(updatedPet);
 
     const historyData = await loadHistory();
     setHistory(historyData);
 
-    // Check for achievements
-    checkAchievements(updatedPet, oldLevel, actionType, detail);
+    checkAchievements(updatedPet, oldLevel);
   };
 
   const openActionModal = (type: ActionType) => {
@@ -150,55 +122,37 @@ export default function PetScreen() {
   const handleResetPet = async () => {
     const newPet = await resetPet();
     setPet(newPet);
-
     const historyData = await loadHistory();
     setHistory(historyData);
   };
 
-  // Check achievements
-  const checkAchievements = (
-    updatedPet: PetState,
-    oldLevel: number,
-    actionType: ActionType,
-    detail?: ActionDetail
-  ) => {
-    let unlocked: Achievement | null = null;
+  // Check achievements dynamically
+  const checkAchievements = (updatedPet: PetState, oldLevel: number) => {
+    const unlockedAchievements = achievements.filter((ach) => {
+      // Level requirement
+      if (ach.requirement.level && updatedPet.level >= ach.requirement.level && oldLevel < ach.requirement.level)
+        return true;
 
-    if (actionType === "recycle" && !history.some((h) => h.action === "recycle")) {
-      unlocked = achievements.find((a) => a.id === "recycler") || null;
-    } else if (
-      actionType === "walk" &&
-      !history.some((h) => h.action === "walk")
-    ) {
-      unlocked = achievements.find((a) => a.id === "first_steps") || null;
-    } else if (
-      actionType === "energySave" &&
-      !history.some((h) => h.action === "energySave")
-    ) {
-      unlocked = achievements.find((a) => a.id === "energy_saver") || null;
-    } else if (updatedPet.level >= 5 && oldLevel < 5) {
-      unlocked = achievements.find((a) => a.id === "level_5") || null;
-    }
+      // Action requirement
+      if (ach.requirement.action) {
+        const count = updatedPet.actions?.[ach.requirement.action] || 0;
+        return count >= ach.requirement.count;
+      }
 
-    if (unlocked) showAchievementToast(unlocked);
+      return false;
+    });
+
+    unlockedAchievements.forEach(showAchievementToast);
   };
 
-  // Show toast animation
+  // Toast animation
   const showAchievementToast = (achievement: Achievement) => {
     setCurrentAchievement(achievement);
     setToastVisible(true);
     Animated.sequence([
-      Animated.timing(toastAnim, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
+      Animated.timing(toastAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
       Animated.delay(2000),
-      Animated.timing(toastAnim, {
-        toValue: 0,
-        duration: 400,
-        useNativeDriver: true,
-      }),
+      Animated.timing(toastAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
     ]).start(() => {
       setToastVisible(false);
       setCurrentAchievement(null);
@@ -210,21 +164,14 @@ export default function PetScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ImageBackground
-        source={bgImage}
-        style={styles.backgroundImage}
-        resizeMode="cover"
-      >
-        {/* Coin Counter - TOP LEFT */}
+      <ImageBackground source={bgImage} style={styles.backgroundImage} resizeMode="cover">
+        {/* Coin Counter */}
         <View style={styles.coinCounter}>
           <Text style={styles.coinText}>${pet.coins || 0}</Text>
         </View>
 
-        {/* Floating History Button - TOP RIGHT */}
-        <TouchableOpacity
-          style={styles.floatingHistoryButton}
-          onPress={() => setSidebarVisible(true)}
-        >
+        {/* History Sidebar button */}
+        <TouchableOpacity style={styles.floatingHistoryButton} onPress={() => setSidebarVisible(true)}>
           <Text style={styles.floatingHistoryText}>☰</Text>
         </TouchableOpacity>
 
@@ -233,11 +180,7 @@ export default function PetScreen() {
             <Text style={styles.appTitle}>Tama</Text>
 
             <View style={styles.petCard}>
-              <Image
-                source={petImage}
-                style={styles.petImage}
-                resizeMode="contain"
-              />
+              <Image source={petImage} style={styles.petImage} resizeMode="contain" />
               <Text style={styles.petName}>{stageName}</Text>
               <Text style={styles.petLevel}>Level: {pet.level}</Text>
               <Text style={styles.petMood}>
@@ -247,22 +190,13 @@ export default function PetScreen() {
             </View>
 
             <View style={styles.actionsWrapper}>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.recycleButton]}
-                onPress={() => openActionModal("recycle")}
-              >
+              <TouchableOpacity style={[styles.actionButton, styles.recycleButton]} onPress={() => openActionModal("recycle")}>
                 <Text style={styles.actionText}>RECYCLE</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.walkButton]}
-                onPress={() => openActionModal("walk")}
-              >
+              <TouchableOpacity style={[styles.actionButton, styles.walkButton]} onPress={() => openActionModal("walk")}>
                 <Text style={styles.actionText}>WALK</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.energyButton]}
-                onPress={() => openActionModal("energySave")}
-              >
+              <TouchableOpacity style={[styles.actionButton, styles.energyButton]} onPress={() => openActionModal("energySave")}>
                 <Text style={styles.actionText}>SAVE ENERGY</Text>
               </TouchableOpacity>
             </View>
@@ -279,28 +213,24 @@ export default function PetScreen() {
               {pendingActionType === "walk" && "How long did you walk?"}
               {pendingActionType === "energySave" && "How did you save energy?"}
             </Text>
-
             {pendingActionType === "recycle" &&
               ["Plastic", "Paper", "Electronics"].map(option => (
                 <Pressable key={option} onPress={() => handleConfirmAction(option as ActionDetail)} style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, backgroundColor: "#FFF", marginBottom: 8 }}>
                   <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
                 </Pressable>
               ))}
-
             {pendingActionType === "walk" &&
               ["Short walk", "Medium walk", "Long walk"].map(option => (
                 <Pressable key={option} onPress={() => handleConfirmAction(option as ActionDetail)} style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, backgroundColor: "#FFF", marginBottom: 8 }}>
                   <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
                 </Pressable>
               ))}
-
             {pendingActionType === "energySave" &&
               ["Turned off lights", "Shorter shower", "Unplugged devices"].map(option => (
                 <Pressable key={option} onPress={() => handleConfirmAction(option as ActionDetail)} style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, backgroundColor: "#FFF", marginBottom: 8 }}>
                   <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
                 </Pressable>
               ))}
-
             <Pressable onPress={() => setIsActionModalVisible(false)} style={{ marginTop: 8, alignSelf: "center" }}>
               <Text style={{ fontFamily: "PressStart2P_400Regular", color: "#6B7280" }}>Cancel</Text>
             </Pressable>
@@ -308,41 +238,26 @@ export default function PetScreen() {
         </View>
       </Modal>
 
-      {/* History sidebar */}
+      {/* History Sidebar */}
       <HistorySidebar
         visible={sidebarVisible}
         onClose={() => setSidebarVisible(false)}
         history={history}
+        petActions={pet.actions}
+        achievements={achievements}
         onResetPet={handleResetPet}
       />
 
-      {/* Achievement Toast */}
+      {/* Achievement toast */}
       {toastVisible && currentAchievement && (
-        <Animated.View
-          style={[
-            styles.toastContainer,
-            {
-              opacity: toastAnim,
-              transform: [
-                {
-                  translateY: toastAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-100, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <Image
-            source={achievementIcons[currentAchievement.id]}
-            style={styles.toastIcon}
-          />
-          <View style={{ marginLeft: 12 }}>
+        <Animated.View style={[styles.toastContainer, {
+          opacity: toastAnim,
+          transform: [{translateY: toastAnim.interpolate({ inputRange:[0,1], outputRange:[-100,0] })}]
+        }]}>
+          <Image source={require("../../assets/images/trophy_placeholder.png")} style={styles.toastIcon} />
+          <View style={{marginLeft:12}}>
             <Text style={styles.toastTitle}>{currentAchievement.title}</Text>
-            <Text style={styles.toastDescription}>
-              {currentAchievement.description}
-            </Text>
+            <Text style={styles.toastDescription}>{currentAchievement.description}</Text>
           </View>
         </Animated.View>
       )}
@@ -350,7 +265,6 @@ export default function PetScreen() {
   );
 }
 
-// Styles (unchanged)
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#000" },
   backgroundImage: { flex: 1, width: "100%", height: "100%" },

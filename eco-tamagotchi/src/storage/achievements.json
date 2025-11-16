@@ -2,25 +2,29 @@
   {
     "id": "recycler",
     "title": "Recycler",
-    "description": "Recycled for the first time!",
-    "icon": "eco-tamagotchi/assets/images/trophy_placeholder.png"
+    "description": "Performed your first recycle action",
+    "icon": "assets/images/trophy_placeholder.png",
+    "requirement": {"action":"recycle","count":1}
   },
   {
     "id": "first_steps",
     "title": "First Steps",
-    "description": "Went for your first walk!",
-    "icon": "eco-tamagotchi/assets/images/trophy_placeholder.png"
+    "description": "Took your first walk",
+    "icon": "assets/images/trophy_placeholder.png",
+    "requirement": {"action":"walk","count":1}
   },
   {
     "id": "energy_saver",
     "title": "Energy Saver",
-    "description": "Saved energy for the planet!",
-    "icon": "eco-tamagotchi/assets/images/trophy_placeholder.png"
+    "description": "Saved energy for the first time",
+    "icon": "assets/images/trophy_placeholder.png",
+    "requirement": {"action":"energySave","count":1}
   },
   {
     "id": "level_5",
     "title": "Level 5",
-    "description": "Reached level 5!",
-    "icon": "eco-tamagotchi/assets/images/trophy_placeholder.png"
+    "description": "Reached level 5",
+    "icon": "assets/images/trophy_placeholder.png",
+    "requirement": {"level":5}
   }
 ]
