@@ -4,7 +4,7 @@ export const PET_EVOLUTION_STAGES = [
   { name: 'Egg',        minLevel: 1, maxLevel: 15 },
   { name: 'Spirril',       minLevel: 16, maxLevel: 31 },
   { name: 'Trellith', minLevel: 32, maxLevel: 63 },
-  { name: 'Verdanthor', minLevel: 63, maxLevel: 99 },
+  { name: 'Verdanthor', minLevel: 64, maxLevel: 99 },
 ];
 
 export function getStageForLevel(level) {

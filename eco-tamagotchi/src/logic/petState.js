@@ -109,9 +109,9 @@ function computeLevelFromXp(xp) {
  * You can map level ranges to a stage name if you want.
  */
 function computeStage(level) {
-  if (level >= 64) return { name: "Mega Tama" };
-  if (level >= 32) return { name: "Big Tama" };
-  if (level >= 16) return { name: "Baby Tama" };
+  if (level >= 64) return { name: "Verdanthor" };
+  if (level >= 32) return { name: "Trellith" };
+  if (level >= 16) return { name: "Spirril" };
   return { name: "Egg" };
 }
 
