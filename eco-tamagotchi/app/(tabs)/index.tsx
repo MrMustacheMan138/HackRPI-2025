@@ -7,11 +7,10 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { router } from "expo-router";
 import { getPetState, resetPet } from "../../src/logic/petState.js";
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
   const [hasPet, setHasPet] = useState(false);
 
   // on first mount, check if a pet already exists
@@ -29,8 +28,9 @@ export default function HomeScreen() {
       await resetPet();
       setHasPet(true);
     }
-    // go to the Pet tab
-    navigation.navigate("Pet" as never);
+
+    // navigate to the Pet tab
+    router.push("/(tabs)/pet");
   };
 
   return (
@@ -56,7 +56,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#BEE3FF", // soft sky blue
+    backgroundColor: "#BEE3FF",
   },
   container: {
     flex: 1,
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     marginTop: 4,
-    backgroundColor: "#FFB3DA", // pastel pink button
+    backgroundColor: "#FFB3DA",
     paddingHorizontal: 28,
     paddingVertical: 12,
     borderRadius: 999,
@@ -95,6 +95,5 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     fontSize: 16,
     letterSpacing: 0.8,
-
   },
 });
