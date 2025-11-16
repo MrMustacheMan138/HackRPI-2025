@@ -8,8 +8,11 @@ const HISTORY_KEY = "pet_history_v1";
 // 💚 Moods go from best -> worst
 const MOOD_STEPS = ["happy", "okay", "meh", "sad", "miserable"];
 
-// How fast mood decays if player does nothing (e.g. one step every 6h)
-const DECAY_INTERVAL_MS = 15;
+// How fast mood decays if player does nothing (every 15 seconds)
+const DECAY_INTERVAL_MS = 5000; // 5 seconds in milliseconds
+
+// XP loss per decay tick
+const XP_LOSS_PER_DECAY = 2;
 
 // XP per action (tune however you like)
 const ACTION_XP = {
@@ -34,7 +37,8 @@ function defaultPet() {
 
 /**
  * Decrease mood based on how long it's been since lastUpdated.
- * If it drops below the lowest mood, pet "runs away".
+ * Also reduces XP over time.
+ * If XP drops below 0, pet "runs away".
  */
 function applyTimeDecay(pet) {
   const now = Date.now();
@@ -46,15 +50,30 @@ function applyTimeDecay(pet) {
   if (steps <= 0) return pet;
 
   let moodIndex = MOOD_STEPS.indexOf(pet.mood);
-  if (moodIndex === -1) moodIndex = 1; // default to "okay" if unknown
+  if (moodIndex === -1) moodIndex = 0; // default to "happy" if unknown
 
+  // Decrease mood and XP
   moodIndex += steps;
+  let newXp = (pet.xp || 0) - (steps * XP_LOSS_PER_DECAY);
+
+  // If XP drops below 0, pet runs away
+  if (newXp < 0) {
+    return {
+      ...pet,
+      mood: "gone",
+      xp: 0,
+      hasRunAway: true,
+      stage: { name: "Ran away..." },
+      lastUpdated: now,
+    };
+  }
 
   // Pet has gone past "miserable" → runs away
   if (moodIndex >= MOOD_STEPS.length) {
     return {
       ...pet,
       mood: "gone",
+      xp: Math.max(0, newXp),
       hasRunAway: true,
       stage: { name: "Ran away..." },
       lastUpdated: now,
@@ -64,6 +83,8 @@ function applyTimeDecay(pet) {
   return {
     ...pet,
     mood: MOOD_STEPS[moodIndex],
+    xp: newXp,
+    level: computeLevelFromXp(newXp),
     lastUpdated: now,
   };
 }
