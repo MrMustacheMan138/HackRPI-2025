@@ -24,6 +24,7 @@ const storeItems = [
   { id: 1, name: "Poffle", price: 150 },
   { id: 2, name: "Tamagotchi Wallpaper", price: 50 },
   { id: 3, name: "Blossib", price: 150 },
+  { id: 5, name: "Blue Shell", price: 250 },
 ];
 
 export default function StoreScreen() {
@@ -141,6 +142,12 @@ export default function StoreScreen() {
                     ) : item.id === 3 ? (
                       <Image
                         source={require("../assets/images/egg3.png")}
+                        style={styles.itemImage}
+                        resizeMode="contain"
+                      />
+                    ) : item.id === 5 ? (
+                      <Image
+                        source={require("../assets/images/eggshell.png")}
                         style={styles.itemImage}
                         resizeMode="contain"
                       />
