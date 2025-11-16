@@ -15,7 +15,7 @@ export async function playSound(soundName) {
 
     // Load the sound first
     const soundMap = {
-      levelUp: require('../../assets/sounds/level_up.mp3'), // Adjust filename if different
+      levelUp: require('../../assets/sounds/level_up.mp3'),
     };
 
     if (!soundMap[soundName]) {
