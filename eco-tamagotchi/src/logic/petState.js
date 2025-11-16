@@ -2,7 +2,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Where we store stuff
-const PET_KEY = "pet_state_v2";
+const PET_KEY = "pet_state_v1";
 const HISTORY_KEY = "pet_history_v1";
 
 // 💚 Moods go from best -> worst
