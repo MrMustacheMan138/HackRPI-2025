@@ -87,34 +87,17 @@ export default function PetScreen() {
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
   const toastAnim = new Animated.Value(0);
 
-  // Load pet state & history, and refresh periodically for mood decay
+  // Load pet state & history
   useEffect(() => {
-    let isMounted = true;
-
     async function fetchPet() {
       const petData = await getPetState();
-      if (isMounted && petData) {
-        setPet(petData);
-      }
+      if (petData) setPet(petData);
 
       const historyData = await loadHistory();
-      if (isMounted) {
-        setHistory(historyData);
-      }
+      setHistory(historyData);
     }
-
-    // Run once immediately
     fetchPet();
-
-    // Then refresh every 5 seconds (tune this)
-    const intervalId = setInterval(fetchPet, 5000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(intervalId);
-    };
   }, []);
-
 
   // Handle actions
   const handleAction = async (actionType: ActionType, detail?: ActionDetail) => {
@@ -205,12 +188,7 @@ export default function PetScreen() {
               <Text style={styles.petMood}>
                 Mood: <Text style={styles.petMoodValue}>{pet.mood}</Text>
               </Text>
-              
-              {/* XP Progress Bar */}
-              <View style={styles.xpBarContainer}>
-                <View style={[styles.xpBarFill, { width: `${Math.min(100, (pet.xp % 20) * 5)}%` }]} />
-                <Text style={styles.xpBarText}>XP: {pet.xp}</Text>
-              </View>
+              <Text style={styles.petStat}>XP: {pet.xp}</Text>
             </View>
 
             <View style={styles.actionsWrapper}>
@@ -297,40 +275,6 @@ const styles = StyleSheet.create({
   petMoodValue: { fontFamily: "PressStart2P_400Regular", color: "#F59E0B" },
   petStat: { fontFamily: "PressStart2P_400Regular", fontSize: 14, color: "#6B7280" },
   petImage: { width: 120, height: 120, marginBottom: 8 },
-  
-  // XP Bar styles
-  xpBarContainer: {
-    width: "90%",
-    height: 32,
-    backgroundColor: "#E5E7EB",
-    borderRadius: 16,
-    marginTop: 10,
-    overflow: "hidden",
-    position: "relative",
-    borderWidth: 2,
-    borderColor: "#9CA3AF",
-  },
-  xpBarFill: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-    backgroundColor: "#A78BFA",
-    borderRadius: 14,
-  },
-  xpBarText: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    textAlign: "center",
-    lineHeight: 28,
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 12,
-    color: "#1F2937",
-    fontWeight: "bold",
-    zIndex: 1,
-  },
-  
   actionsWrapper: { marginTop: 8, width: "55%", gap: 8 },
   actionButton: { width: "100%", paddingVertical: 5, borderRadius: 999, alignItems: "center", justifyContent: "center", shadowColor: "#F9A8D4", shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
   actionText: { fontFamily: "PressStart2P_400Regular", letterSpacing: 0.5, fontSize: 14 },
