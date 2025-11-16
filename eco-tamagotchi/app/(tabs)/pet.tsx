@@ -204,6 +204,7 @@ export default function PetScreen() {
           >
             <Text
               style={{
+                fontFamily: "PressStart2P_400Regular",
                 fontSize: 20,
                 fontWeight: "700",
                 textAlign: "center",
@@ -237,7 +238,7 @@ export default function PetScreen() {
                       shadowOffset: { width: 0, height: 2 },
                     }}
                   >
-                    <Text style={{ textAlign: "center" }}>{option}</Text>
+                    <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
                   </Pressable>
                 ))}
               </>
@@ -260,7 +261,7 @@ export default function PetScreen() {
                       marginBottom: 8,
                     }}
                   >
-                    <Text style={{ textAlign: "center" }}>{option}</Text>
+                    <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
                   </Pressable>
                 ))}
               </>
@@ -287,7 +288,7 @@ export default function PetScreen() {
                       marginBottom: 8,
                     }}
                   >
-                    <Text style={{ textAlign: "center" }}>{option}</Text>
+                    <Text style={{ fontFamily: "PressStart2P_400Regular", textAlign: "center" }}>{option}</Text>
                   </Pressable>
                 ))}
               </>
@@ -297,7 +298,7 @@ export default function PetScreen() {
               onPress={() => setIsActionModalVisible(false)}
               style={{ marginTop: 8, alignSelf: "center" }}
             >
-              <Text style={{ color: "#6B7280" }}>Cancel</Text>
+              <Text style={{ fontFamily: "PressStart2P_400Regular", color: "#6B7280" }}>Cancel</Text>
             </Pressable>
           </View>
         </View>
@@ -375,7 +376,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   appSubtitle: {
-    fontFamily: "Baloo2_400Regular",
+    fontFamily: "PressStart2P_400Regular",
     fontSize: 13,
     color: "#A855F7",
     textAlign: "center",
@@ -399,28 +400,28 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   petName: {
-    fontFamily: "Baloo2_600SemiBold",
+    fontFamily: "PressStart2P_400Regular",
     fontSize: 20,
     color: "#FB7185",
     marginBottom: 6,
   },
   petMood: {
-    fontFamily: "Baloo2_400Regular",
+    fontFamily: "PressStart2P_400Regular",
     fontSize: 15,
     color: "#4B5563",
     marginBottom: 2,
   },
   petMoodValue: {
-    fontFamily: "Baloo2_600SemiBold",
+    fontFamily: "PressStart2P_400Regular",
     color: "#F59E0B",
   },
   petStat: {
-    fontFamily: "Baloo2_400Regular",
+    fontFamily: "PressStart2P_400Regular",
     fontSize: 14,
     color: "#6B7280",
   },
   petMessage: {
-    fontFamily: "Baloo2_400Regular",
+    fontFamily: "PressStart2P_400Regular",
     marginTop: 8,
     fontSize: 13,
     color: "#7C3AED",
@@ -428,8 +429,8 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   petImage: {
-    width: 140,
-    height: 140,
+    width: 120,
+    height: 120,
     marginBottom: 8,
   },
 
@@ -450,7 +451,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
   },
   actionText: {
-    fontFamily: "Baloo2_600SemiBold",
+    fontFamily: "PressStart2P_400Regular",
     letterSpacing: 0.5,
     fontSize: 14,
   },
@@ -477,8 +478,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
   },
   resetText: {
-    fontFamily: "Baloo2_600SemiBold",
-    color: "#7F1D1D",
+    fontFamily: "PressStart2P_400Regular",
+        color: "#7F1D1D",
     letterSpacing: 1.1,
     fontSize: 12,
   },
