@@ -9,7 +9,7 @@ import {
   Image,
   Modal,
   Pressable,
-  ImageBackground,      // ✅ only here (no second import)
+  ImageBackground,  
 } from "react-native";
 import {
   getPetState,
