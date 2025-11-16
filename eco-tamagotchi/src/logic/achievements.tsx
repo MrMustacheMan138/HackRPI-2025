@@ -1,6 +1,7 @@
-// src/components/AchievementToast.tsx
 import React, { useEffect, useRef } from "react";
-import { Animated, Text, View, StyleSheet, Image } from "react-native";
+import { Animated, Text, View, StyleSheet, Image, Dimensions } from "react-native";
+
+const { width } = Dimensions.get("window");
 
 type Achievement = {
   id: string;
@@ -16,75 +17,108 @@ type Props = {
 };
 
 export default function AchievementToast({ achievement, index, onHide }: Props) {
-  const slideAnim = useRef(new Animated.Value(0)).current; // width reveal
+  const dropAnim = useRef(new Animated.Value(-40)).current; // drop from above
+  const iconSlide = useRef(new Animated.Value(0)).current;  // move icon left
+  const textSlide = useRef(new Animated.Value(0)).current;  // slide text right
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Slide width and fade in
-    Animated.parallel([
-      Animated.timing(slideAnim, {
-        toValue: 1,
-        duration: 450,
-        useNativeDriver: false, // width animation = can't use native
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: 1,
-        duration: 450,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    // Fade + slide out after 3s
-    const timer = setTimeout(() => {
+    Animated.sequence([
+      // Step 1: Fade in + Drop down
       Animated.parallel([
-        Animated.timing(slideAnim, {
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 350,
+          useNativeDriver: true,
+        }),
+        Animated.timing(dropAnim, {
           toValue: 0,
-          duration: 400,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]),
+
+      // Step 2: Icon slides left & Text slides out to the right
+      Animated.parallel([
+        Animated.timing(iconSlide, {
+          toValue: -40, // icon goes left
+          duration: 350,
+          useNativeDriver: true,
+        }),
+        Animated.timing(textSlide, {
+          toValue: 1, // reveal width
+          duration: 450,
           useNativeDriver: false,
         }),
+      ]),
+    ]).start();
+
+    // Auto hide
+    const timer = setTimeout(() => {
+      Animated.parallel([
         Animated.timing(opacityAnim, {
           toValue: 0,
           duration: 400,
           useNativeDriver: true,
         }),
+        Animated.timing(textSlide, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: false,
+        }),
       ]).start(() => onHide());
-    }, 3000);
+    }, 3200);
 
     return () => clearTimeout(timer);
   }, []);
 
-  const textWidth = slideAnim.interpolate({
+  const textWidth = textSlide.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 200], // final text width
+    outputRange: [0, 230],
   });
 
   return (
-    <View style={[styles.container, { top: 20 + index * 70 }]}>
-      {/* Circle Trophy Icon */}
-      <View style={styles.iconWrapper}>
-        <Image
-          source={require("../../assets/images/trophy_placeholder.png")}
-          style={styles.icon}
-        />
-      </View>
+    <Animated.View
+      style={[
+        styles.wrapper,
+        {
+          top: 40 + index * 70,
+          opacity: opacityAnim,
+          transform: [{ translateY: dropAnim }],
+        },
+      ]}
+    >
+      {/* Icon sliding slightly left */}
+      <Animated.View style={{ transform: [{ translateX: iconSlide }] }}>
+        <View style={styles.iconWrapper}>
+          <Image
+            source={require("../../assets/images/trophy_placeholder.png")}
+            style={styles.icon}
+          />
+        </View>
+      </Animated.View>
 
-      {/* Sliding Reveal Text */}
+      {/* Text sliding to the right */}
       <Animated.View
         style={[
           styles.textBox,
-          { width: textWidth, opacity: opacityAnim },
+          {
+            width: textWidth,
+          },
         ]}
       >
         <Text style={styles.title}>{achievement.title}</Text>
+        <Text style={styles.desc}>{achievement.description}</Text>
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     position: "absolute",
-    right: 20,
+    left: "50%",
+    transform: [{ translateX: -130 }], // center the whole toast
     flexDirection: "row",
     alignItems: "center",
     width: 260,
@@ -115,12 +149,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 12,
-    overflow: "hidden", // prevents showing text until slideAnim expands
+    overflow: "hidden",
   },
 
   title: {
     fontFamily: "PressStart2P_400Regular",
     color: "#FFFFFF",
     fontSize: 11,
+    marginBottom: 6,
+  },
+
+  desc: {
+    fontFamily: "PressStart2P_400Regular",
+    color: "#AAAAAA",
+    fontSize: 8,
+    lineHeight: 12,
   },
 });
