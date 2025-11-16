@@ -9,7 +9,7 @@ import {
   Image,
   Modal,
   Pressable,
-  ImageBackground,  
+  ImageBackground,
 } from "react-native";
 import {
   getPetState,
@@ -107,6 +107,14 @@ export default function PetScreen() {
     setPendingActionType(null);
   };
 
+  // 🔁 Reset character (dev helper)
+  const handleReset = async () => {
+    const newPet = await resetPet();
+    setPet(newPet);
+    const historyData = await loadHistory();
+    setHistory(historyData);
+  };
+
   const petImage = getPetImage(pet.level);
   const stageName = pet.stage?.name ?? "Sprout";
 
@@ -173,6 +181,14 @@ export default function PetScreen() {
                 <Text style={styles.actionText}>SAVE ENERGY 💡</Text>
               </TouchableOpacity>
             </View>
+
+            {/* 🔁 Dev-only reset button, aligned to the right */}
+            <TouchableOpacity
+              style={styles.resetButton}
+              onPress={handleReset}
+            >
+              <Text style={styles.resetText}>Reset Character (dev) 🔄</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ImageBackground>
@@ -317,10 +333,9 @@ const styles = StyleSheet.create({
   // whole screen background
   safeArea: {
     flex: 1,
-    backgroundColor: "#000", // or "#FFEAF7" if you like
+    backgroundColor: "#000", // only visible under bg image
   },
 
-  // 👇 new style for the bg image
   backgroundImage: {
     flex: 1,
     width: "100%",
@@ -333,7 +348,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  // glows are now unused; you can delete these if you want
+  // old glows (unused now; safe to delete later)
   glowTop: {
     position: "absolute",
     top: -80,
@@ -464,38 +479,40 @@ const styles = StyleSheet.create({
     backgroundColor: "#FDE68A",
   },
 
+  // dev reset button (right side)
   resetButton: {
-    marginTop: 18,
-    alignSelf: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 9,
+    marginTop: 16,
+    alignSelf: "flex-end",
+    paddingHorizontal: 18,
+    paddingVertical: 8,
     borderRadius: 999,
     backgroundColor: "#FECACA",
     shadowColor: "#FCA5A5",
     shadowOpacity: 0.35,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
   },
   resetText: {
     fontFamily: "Baloo2_600SemiBold",
     color: "#7F1D1D",
-    letterSpacing: 1.1,
+    letterSpacing: 0.8,
     fontSize: 12,
   },
+
   floatingHistoryButton: {
     position: "absolute",
     top: 20,
     right: 30,
-    padding: 8,          // tap area
+    padding: 8,
     zIndex: 100,
-    // no background, no fixed width/height, no borderRadius, no shadow
   },
   floatingHistoryText: {
     fontSize: 24,
     fontWeight: "700",
     color: "#4B5563",
   },
-  });
+});
+
 
 // // app/(tabs)/index.tsx
 // import React, { useEffect, useState } from "react";
