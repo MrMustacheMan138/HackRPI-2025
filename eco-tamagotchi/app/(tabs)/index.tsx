@@ -27,10 +27,13 @@ export default function HomeScreen() {
       setHasPet(true);
     }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
     // navigate to the Pet tab
     router.push("/(tabs)/pet");
 =======
+=======
+>>>>>>> Stashed changes
     navigation.navigate("Pet" as never);
 >>>>>>> Stashed changes
   };
@@ -98,15 +101,21 @@ const styles = StyleSheet.create({
   // ⭐ BUTTON
   ctaButton: {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     marginTop: 4,
     backgroundColor: "#FFB3DA",
     paddingHorizontal: 28,
     paddingVertical: 12,
 =======
+=======
+>>>>>>> Stashed changes
     marginTop: 10,
     backgroundColor: "#FFB3DA",
     paddingHorizontal: 30,
     paddingVertical: 16,
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     borderRadius: 999,
     shadowColor: "#F472B6",
@@ -119,14 +128,20 @@ const styles = StyleSheet.create({
   ctaText: {
     color: "#512051",
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     fontWeight: "800",
     fontSize: 16,
     letterSpacing: 0.8,
 =======
+=======
+>>>>>>> Stashed changes
     fontSize: 12,
     fontFamily: "PressStart2P_400Regular",
     letterSpacing: 1,
     textAlign: "center",
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   },
 });
