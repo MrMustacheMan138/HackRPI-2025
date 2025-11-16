@@ -65,7 +65,7 @@ const achievements: Achievement[] = require("../../src/storage/achievements.json
 // Pet image based on level
 function getPetImage(level: number) {
   if (level >= 64) return require("../../assets/images/level3.png");
-  if (level >= 32) return require("../../assets/images/level2.png");
+  if (level >= 32) return require("../../assets/images/Small_Man.gif");
   if (level >= 16) return require("../../assets/images/blob.gif");
   return require("../../assets/images/egg.gif");
 }
