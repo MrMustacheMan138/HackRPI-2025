@@ -47,7 +47,6 @@ type PetState = {
   message?: string;
   stage?: { name: string };
   actions?: Record<string, number>;
-  // hasRunAway?: boolean; // available in petState.js if you want to read it
 };
 
 type Achievement = {
@@ -230,7 +229,7 @@ export default function PetScreen() {
               style={styles.shell}
               resizeMode="contain"
             >
-              {/* White screen area */}
+              {/* White screen area INSIDE the machine art */}
               <View style={styles.screen}>
                 <Image
                   source={petImage}
@@ -243,32 +242,32 @@ export default function PetScreen() {
                   Mood: <Text style={styles.petMoodValue}>{pet.mood}</Text>
                 </Text>
                 <Text style={styles.petStat}>XP: {pet.xp}</Text>
+
+                {/* Buttons now live inside the white screen area */}
+                <View style={styles.actionsWrapper}>
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.recycleButton]}
+                    onPress={() => openActionModal("recycle")}
+                  >
+                    <Text style={styles.actionText}>RECYCLE</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.walkButton]}
+                    onPress={() => openActionModal("walk")}
+                  >
+                    <Text style={styles.actionText}>WALK</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.energyButton]}
+                    onPress={() => openActionModal("energySave")}
+                  >
+                    <Text style={styles.actionText}>SAVE ENERGY</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </ImageBackground>
-
-            {/* Buttons BELOW the machine */}
-            <View style={styles.actionsWrapper}>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.recycleButton]}
-                onPress={() => openActionModal("recycle")}
-              >
-                <Text style={styles.actionText}>RECYCLE</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionButton, styles.walkButton]}
-                onPress={() => openActionModal("walk")}
-              >
-                <Text style={styles.actionText}>WALK</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionButton, styles.energyButton]}
-                onPress={() => openActionModal("energySave")}
-              >
-                <Text style={styles.actionText}>SAVE ENERGY</Text>
-              </TouchableOpacity>
-            </View>
           </View>
         </View>
       </ImageBackground>
@@ -384,7 +383,7 @@ export default function PetScreen() {
                       }}
                     >
                       {option}
-                    </Text>
+                  </Text>
                   </Pressable>
                 )
               )}
@@ -463,23 +462,24 @@ const styles = StyleSheet.create({
 
   // The Tamagotchi shell image
   shell: {
-    width: 350, // tweak for size
+    width: 350,
     height: 350,
     alignItems: "center",
     justifyContent: "center",
+    position: "relative", // so the screen can be absolutely positioned
   },
 
   // White screen aligned to your art
   screen: {
     position: "absolute",
-    top: "26%", // tweak these four to line up with the white square
+    top: "26%",   // tweak these four to line up with the white square
     left: "22%",
     right: "22%",
     bottom: "30%",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "transparent", // let the machine's white show through
     borderRadius: 12,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: 8,
     paddingVertical: 6,
   },
@@ -526,10 +526,11 @@ const styles = StyleSheet.create({
     fontFamily: "PressStart2P_400Regular",
     fontSize: 11,
     color: "#6B7280",
+    marginBottom: 8,
   },
 
   actionsWrapper: {
-    marginTop: 16,
+    marginTop: 8,
     width: 220,
     gap: 8,
   },
