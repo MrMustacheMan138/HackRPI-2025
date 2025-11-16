@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { getPetState, logAction, resetPet, loadHistory} from "../../src/logic/petState.js";
 import HistorySidebar from "./components/history_sidebar";
+import { playSound } from "../../src/utils/sounds";
 
 type ActionType = "recycle" | "walk" | "energySave";
 
@@ -52,20 +53,21 @@ export default function PetScreen() {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
 
-  const handleAction = async (actionType: ActionType) => {
+    const handleAction = async (actionType: ActionType) => {
+    const oldLevel = pet.level; // Save the current level
     const updatedPet = await logAction(actionType);
     setPet(updatedPet);
-
+    
+    // Check if leveled up and play sound
+    if (updatedPet.level > oldLevel) {
+        playSound('levelUp');
+    }
+    
     // Refresh history after action
     const historyData = await loadHistory();
     setHistory(historyData);
-  };
-
-  const handleReset = async () => {
-    const resetedPet = await resetPet();
-    setPet(resetedPet);
-  };
-
+    };
+    
   const petImage = getPetImage(pet.level);
   const stageName = pet.stage?.name ?? "Sprout";
 
