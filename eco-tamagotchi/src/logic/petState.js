@@ -107,10 +107,6 @@ export async function logAction(actionType, detail) {
   // 3. Update evolution stage
   pet.stage = getStageForLevel(pet.level);
 
-  // 4. ❌ NO MORE PERSONALITY MESSAGE
-  // pet.lastActionId = actionType;
-  // pet.message = getPersonalityMessage(pet, actionType);
-
   // 5. Mood + timestamp
   pet.mood = 'happy';
   pet.lastUpdated = Date.now();

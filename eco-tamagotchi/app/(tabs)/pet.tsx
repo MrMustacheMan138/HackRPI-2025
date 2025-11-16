@@ -145,9 +145,6 @@ export default function PetScreen() {
               </Text>
               <Text style={styles.petStat}>XP: {pet.xp}</Text>
               <Text style={styles.petStat}>Level: {pet.level}</Text>
-              {pet.message && (
-                <Text style={styles.petMessage}>{pet.message}</Text>
-              )}
             </View>
 
             {/* Actions */}
