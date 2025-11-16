@@ -47,7 +47,6 @@ export default function HomeScreen() {
       setHasPet(true);
     }
 
-    // 🚀 Navigate to pet.tsx (correct path for your folder structure)
     router.push("/pet");
   };
 
