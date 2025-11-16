@@ -1,515 +1,216 @@
-// app/(tabs)/index.tsx
-import React, { useEffect, useState } from "react";
+// app/(tabs)/components/history_sidebar.tsx
+
+import React from "react";
 import {
+  Modal,
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
-  Image,
-  Modal,
-  Pressable,
-  ImageBackground,
+  ScrollView,
 } from "react-native";
-import {
-  getPetState,
-  logAction,
-  resetPet,
-  loadHistory,
-} from "../../src/logic/petState.js";
-import HistorySidebar from "./components/history_sidebar";
-// import { playSound } from "../../src/utils/sounds";
-import {
-  Baloo2_400Regular,
-  Baloo2_600SemiBold,
-} from "@expo-google-fonts/baloo-2";
-import { PressStart2P_400Regular } from "@expo-google-fonts/press-start-2p";
+import { resetPet } from "../../../src/logic/petState.js";
 
-const bgImage = require("../../assets/images/newnew.png");
-
-type ActionType = "recycle" | "walk" | "energySave";
-
-type ActionDetail =
-  | "Plastic"
-  | "Paper"
-  | "Electronics"
-  | "Short walk"
-  | "Medium walk"
-  | "Long walk"
-  | "Turned off lights"
-  | "Shorter shower"
-  | "Unplugged devices";
-
-type PetState = {
-  mood: string;
-  xp: number;
-  level: number;
-  lastUpdated: number;
+type HistoryItem = {
+  id?: string | number;
+  timestamp?: number | string;
+  actionType?: string;
+  detail?: string;
+  xpChange?: number;
   message?: string;
-  stage?: { name: string };
 };
 
-function getPetImage(level: number) {
-  if (level >= 4) return require("../../assets/images/level3.png");
-  if (level >= 3) return require("../../assets/images/level2.png");
-  if (level >= 2) return require("../../assets/images/level1.png");
-  return require("../../assets/images/IMG_02011.png");
-}
+type HistorySidebarProps = {
+  visible: boolean;
+  onClose: () => void;
+  history: HistoryItem[];
+  // optional: parent can pass this to refresh pet state after reset
+  onResetPet?: () => void;
+};
 
-export default function PetScreen() {
-  const [pet, setPet] = useState<PetState>({
-    mood: "neutral",
-    xp: 0,
-    level: 1,
-    lastUpdated: Date.now(),
-  });
-
-  const [sidebarVisible, setSidebarVisible] = useState(false);
-  const [history, setHistory] = useState<any[]>([]);
-  const [pendingActionType, setPendingActionType] =
-    useState<ActionType | null>(null);
-  const [isActionModalVisible, setIsActionModalVisible] = useState(false);
-
-  // Load pet state & history on mount
-  useEffect(() => {
-    async function fetchPet() {
-      const petData = await getPetState();
-      if (petData) setPet(petData);
-
-      const historyData = await loadHistory();
-      setHistory(historyData);
+const HistorySidebar: React.FC<HistorySidebarProps> = ({
+  visible,
+  onClose,
+  history,
+  onResetPet,
+}) => {
+  const handleResetPress = async () => {
+    await resetPet();
+    if (onResetPet) {
+      onResetPet();
     }
-    fetchPet();
-  }, []);
-
-  const handleAction = async (actionType: ActionType, detail?: ActionDetail) => {
-    const oldLevel = pet.level;
-    const updatedPet = await logAction(actionType, detail);
-    setPet(updatedPet);
-
-    // if (updatedPet.level > oldLevel) {
-    //   playSound("levelUp");
-    // }
-
-    const historyData = await loadHistory();
-    setHistory(historyData);
+    onClose();
   };
-
-  const openActionModal = (type: ActionType) => {
-    setPendingActionType(type);
-    setIsActionModalVisible(true);
-  };
-
-  const handleConfirmAction = async (detail: ActionDetail) => {
-    if (!pendingActionType) return;
-    await handleAction(pendingActionType, detail);
-    setIsActionModalVisible(false);
-    setPendingActionType(null);
-  };
-
-  // 🔁 Reset character (dev helper)
-  const handleReset = async () => {
-    const newPet = await resetPet();
-    setPet(newPet);
-    const historyData = await loadHistory();
-    setHistory(historyData);
-  };
-
-  const petImage = getPetImage(pet.level);
-  const stageName = pet.stage?.name ?? "Sprout";
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* Background image wraps the main content */}
-      <ImageBackground
-        source={bgImage}
-        style={styles.backgroundImage}
-        resizeMode="cover"
-      >
-        {/* Floating History Button - TOP RIGHT */}
-        <TouchableOpacity
-          style={styles.floatingHistoryButton}
-          onPress={() => setSidebarVisible(true)}
-        >
-          <Text style={styles.floatingHistoryText}>☰</Text>
-        </TouchableOpacity>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        {/* tap outside to close */}
+        <TouchableOpacity style={styles.backdrop} onPress={onClose} />
 
-        {/* Center content over background */}
-        <View style={styles.background}>
-          <View style={styles.container}>
-            {/* Title */}
-            <Text style={styles.appTitle}>Tama</Text>
-
-            {/* Pet card */}
-            <View style={styles.petCard}>
-              <Image
-                source={petImage}
-                style={styles.petImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.petName}>{stageName}</Text>
-              <Text style={styles.petMood}>
-                Mood: <Text style={styles.petMoodValue}>{pet.mood}</Text>
-              </Text>
-              <Text style={styles.petStat}>XP: {pet.xp}</Text>
-              <Text style={styles.petStat}>Level: {pet.level}</Text>
-              {pet.message && (
-                <Text style={styles.petMessage}>{pet.message}</Text>
-              )}
-            </View>
-
-            {/* Actions */}
-            <View style={styles.actionsWrapper}>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.recycleButton]}
-                onPress={() => openActionModal("recycle")}
-              >
-                <Text style={styles.actionText}>RECYCLE ♻️</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionButton, styles.walkButton]}
-                onPress={() => openActionModal("walk")}
-              >
-                <Text style={styles.actionText}>WALK 🚶</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionButton, styles.energyButton]}
-                onPress={() => openActionModal("energySave")}
-              >
-                <Text style={styles.actionText}>SAVE ENERGY 💡</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* 🔁 Dev-only reset button, aligned to the right */}
-            <TouchableOpacity
-              style={styles.resetButton}
-              onPress={handleReset}
-            >
-              <Text style={styles.resetText}>Reset Character (dev) 🔄</Text>
+        {/* right-side panel */}
+        <View style={styles.sidebar}>
+          <View style={styles.headerRow}>
+            <Text style={styles.headerTitle}>History</Text>
+            <TouchableOpacity onPress={onClose}>
+              <Text style={styles.closeText}>✕</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </ImageBackground>
 
-      {/* Action detail modal */}
-      <Modal
-        visible={isActionModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsActionModalVisible(false)}
-      >
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgba(0,0,0,0.4)",
-          }}
-        >
-          <View
-            style={{
-              width: "90%",
-              maxWidth: 420,
-              borderRadius: 28,
-              padding: 22,
-              backgroundColor: "#FFE8F7",
-              alignSelf: "center",
-            }}
+          <Text style={styles.subtitle}>Your eco actions</Text>
+
+          <ScrollView style={styles.historyList}>
+            {history && history.length > 0 ? (
+              history.map((item, index) => {
+                const key = item.id ?? index;
+                const ts =
+                  typeof item.timestamp === "number"
+                    ? new Date(item.timestamp).toLocaleString()
+                    : item.timestamp;
+
+                return (
+                  <View key={key} style={styles.historyItem}>
+                    {ts && (
+                      <Text style={styles.historyTimestamp}>{ts}</Text>
+                    )}
+                    <Text style={styles.historyMain}>
+                      {item.actionType ?? "Action"}
+                      {item.detail ? ` · ${item.detail}` : ""}
+                    </Text>
+                    {typeof item.xpChange === "number" && (
+                      <Text style={styles.historyXp}>
+                        XP: {item.xpChange >= 0 ? "+" : ""}
+                        {item.xpChange}
+                      </Text>
+                    )}
+                    {item.message && (
+                      <Text style={styles.historyMessage}>
+                        {item.message}
+                      </Text>
+                    )}
+                  </View>
+                );
+              })
+            ) : (
+              <Text style={styles.emptyText}>
+                No actions yet. Start caring for your Tama!
+              </Text>
+            )}
+          </ScrollView>
+
+          {/* DEV: reset character button in the sidebar column */}
+          <TouchableOpacity
+            style={styles.resetButton}
+            onPress={handleResetPress}
           >
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: "700",
-                textAlign: "center",
-                marginBottom: 12,
-                color: "#7C3AED",
-              }}
-            >
-              {pendingActionType === "recycle" && "What did you recycle?"}
-              {pendingActionType === "walk" && "How long did you walk?"}
-              {pendingActionType === "energySave" && "How did you save energy?"}
-            </Text>
-
-            {/* Recycle options */}
-            {pendingActionType === "recycle" && (
-              <>
-                {["Plastic", "Paper", "Electronics"].map((option) => (
-                  <Pressable
-                    key={option}
-                    onPress={() =>
-                      handleConfirmAction(option as ActionDetail)
-                    }
-                    style={{
-                      paddingVertical: 10,
-                      paddingHorizontal: 14,
-                      borderRadius: 999,
-                      backgroundColor: "#FFFFFF",
-                      marginBottom: 8,
-                      shadowColor: "#F5C2E7",
-                      shadowOpacity: 0.2,
-                      shadowRadius: 6,
-                      shadowOffset: { width: 0, height: 2 },
-                    }}
-                  >
-                    <Text style={{ textAlign: "center" }}>{option}</Text>
-                  </Pressable>
-                ))}
-              </>
-            )}
-
-            {/* Walk options */}
-            {pendingActionType === "walk" && (
-              <>
-                {["Short walk", "Medium walk", "Long walk"].map((option) => (
-                  <Pressable
-                    key={option}
-                    onPress={() =>
-                      handleConfirmAction(option as ActionDetail)
-                    }
-                    style={{
-                      paddingVertical: 10,
-                      paddingHorizontal: 14,
-                      borderRadius: 999,
-                      backgroundColor: "#FFFFFF",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <Text style={{ textAlign: "center" }}>{option}</Text>
-                  </Pressable>
-                ))}
-              </>
-            )}
-
-            {/* Energy-save options */}
-            {pendingActionType === "energySave" && (
-              <>
-                {[
-                  "Turned off lights",
-                  "Shorter shower",
-                  "Unplugged devices",
-                ].map((option) => (
-                  <Pressable
-                    key={option}
-                    onPress={() =>
-                      handleConfirmAction(option as ActionDetail)
-                    }
-                    style={{
-                      paddingVertical: 10,
-                      paddingHorizontal: 14,
-                      borderRadius: 999,
-                      backgroundColor: "#FFFFFF",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <Text style={{ textAlign: "center" }}>{option}</Text>
-                  </Pressable>
-                ))}
-              </>
-            )}
-
-            <Pressable
-              onPress={() => setIsActionModalVisible(false)}
-              style={{ marginTop: 8, alignSelf: "center" }}
-            >
-              <Text style={{ color: "#6B7280" }}>Cancel</Text>
-            </Pressable>
-          </View>
+            <Text style={styles.resetText}>Reset Character (dev) 🔄</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-
-      {/* History sidebar */}
-      <HistorySidebar
-        visible={sidebarVisible}
-        onClose={() => setSidebarVisible(false)}
-        history={history}
-      />
-    </SafeAreaView>
+      </View>
+    </Modal>
   );
-}
+};
+
+export default HistorySidebar;
 
 const styles = StyleSheet.create({
-  // whole screen background
-  safeArea: {
+  overlay: {
     flex: 1,
-    backgroundColor: "#000", // only visible under bg image
+    flexDirection: "row",
+    backgroundColor: "rgba(0,0,0,0.25)",
   },
-
-  backgroundImage: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
+  backdrop: {
+    flex: 1, // left side: tap to close
   },
-
-  background: {
-    flex: 1,
-    justifyContent: "center",
+  sidebar: {
+    width: 300,
+    backgroundColor: "#FFE8F7",
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 24,
+    borderTopLeftRadius: 24,
+    borderBottomLeftRadius: 24,
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    shadowOffset: { width: -4, height: 0 },
+  },
+  headerRow: {
+    flexDirection: "row",
     alignItems: "center",
-  },
-
-  // old glows (unused now; safe to delete later)
-  glowTop: {
-    position: "absolute",
-    top: -80,
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: "rgba(244, 187, 255, 0.55)",
-  },
-  glowBottom: {
-    position: "absolute",
-    bottom: -100,
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    backgroundColor: "rgba(186, 230, 253, 0.55)",
-  },
-
-  container: {
-    width: 400,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    borderRadius: 180,
-    backgroundColor: "#FFB3DA",
-    borderWidth: 4,
-    borderColor: "#FF8CCF",
-    alignItems: "center",
-    shadowColor: "#F472B6",
-    shadowOpacity: 0.35,
-    shadowRadius: 22,
-    shadowOffset: { width: 0, height: 10 },
-  },
-
-  appTitle: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 18,
-    color: "#7C3AED",
-    textAlign: "center",
-    letterSpacing: 1.5,
-    marginBottom: 6,
-  },
-  appSubtitle: {
-    fontFamily: "Baloo2_400Regular",
-    fontSize: 13,
-    color: "#A855F7",
-    textAlign: "center",
-    marginTop: 0,
-    marginBottom: 16,
-  },
-
-  petCard: {
-    width: "80%",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 24,
-    backgroundColor: "#FFFDF5",
-    borderWidth: 1.5,
-    borderColor: "#FBCFE8",
-    marginBottom: 14,
-  },
-  petEmoji: {
-    fontSize: 52,
+    justifyContent: "space-between",
     marginBottom: 4,
   },
-  petName: {
-    fontFamily: "Baloo2_600SemiBold",
-    fontSize: 20,
-    color: "#FB7185",
-    marginBottom: 6,
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#7C3AED",
   },
-  petMood: {
-    fontFamily: "Baloo2_400Regular",
-    fontSize: 15,
-    color: "#4B5563",
-    marginBottom: 2,
-  },
-  petMoodValue: {
-    fontFamily: "Baloo2_600SemiBold",
-    color: "#F59E0B",
-  },
-  petStat: {
-    fontFamily: "Baloo2_400Regular",
-    fontSize: 14,
+  closeText: {
+    fontSize: 18,
     color: "#6B7280",
   },
-  petMessage: {
-    fontFamily: "Baloo2_400Regular",
-    marginTop: 8,
+  subtitle: {
     fontSize: 13,
-    color: "#7C3AED",
-    textAlign: "center",
-    fontStyle: "italic",
+    color: "#9CA3AF",
+    marginBottom: 12,
   },
-  petImage: {
-    width: 120,
-    height: 120,
-    marginBottom: 8,
+  historyList: {
+    flex: 1,
+    marginBottom: 12,
   },
-
-  actionsWrapper: {
-    marginTop: 8,
-    width: "55%",
-    gap: 8,
+  historyItem: {
+    paddingVertical: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(148, 163, 184, 0.4)",
   },
-  actionButton: {
-    width: "100%",
-    paddingVertical: 5,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#F9A8D4",
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
+  historyTimestamp: {
+    fontSize: 11,
+    color: "#9CA3AF",
+    marginBottom: 2,
   },
-  actionText: {
-    fontFamily: "Baloo2_600SemiBold",
-    letterSpacing: 0.5,
+  historyMain: {
     fontSize: 14,
+    color: "#4B5563",
+    fontWeight: "600",
   },
-  recycleButton: {
-    backgroundColor: "#BBF7D0",
+  historyXp: {
+    fontSize: 13,
+    color: "#10B981",
   },
-  walkButton: {
-    backgroundColor: "#BFDBFE",
+  historyMessage: {
+    fontSize: 12,
+    color: "#7C3AED",
+    marginTop: 2,
   },
-  energyButton: {
-    backgroundColor: "#FDE68A",
+  emptyText: {
+    fontSize: 13,
+    color: "#6B7280",
+    marginTop: 10,
   },
 
-  // dev reset button (right side)
+  // reset button in sidebar
   resetButton: {
     marginTop: 16,
-    alignSelf: "flex-end",
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    borderRadius: 999,
     backgroundColor: "#FECACA",
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: "center",
     shadowColor: "#FCA5A5",
     shadowOpacity: 0.35,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
   },
   resetText: {
-    fontFamily: "Baloo2_600SemiBold",
-    color: "#7F1D1D",
-    letterSpacing: 0.8,
-    fontSize: 12,
-  },
-
-  floatingHistoryButton: {
-    position: "absolute",
-    top: 20,
-    right: 30,
-    padding: 8,
-    zIndex: 100,
-  },
-  floatingHistoryText: {
-    fontSize: 24,
+    fontSize: 13,
     fontWeight: "700",
-    color: "#4B5563",
+    color: "#7F1D1D",
+    letterSpacing: 0.5,
   },
 });
 
