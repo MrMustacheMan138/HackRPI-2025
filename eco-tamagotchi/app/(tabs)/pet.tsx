@@ -169,20 +169,6 @@ export default function PetScreen() {
             >
                 <Text style={styles.actionText}>SAVE ENERGY 💡</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-                style={[styles.actionButton, styles.walkButton]}
-                onPress={() => handleAction("walk")}
-            >
-                <Text style={styles.actionText}>WALK 🚶</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={[styles.actionButton, styles.energyButton]}
-                onPress={() => handleAction("energySave")}
-            >
-                <Text style={styles.actionText}>SAVE ENERGY 💡</Text>
-            </TouchableOpacity>
           </View>
           {/* Reset */}
         </View>
@@ -205,10 +191,12 @@ export default function PetScreen() {
         >
           <View
             style={{
-              width: "80%",
-              borderRadius: 24,
-              padding: 20,
+              width: "90%",
+              maxWidth: 420,
+              borderRadius: 28,
+              padding: 22,
               backgroundColor: "#FFE8F7",
+              alignSelf: "center",
             }}
           >
             <Text
@@ -222,8 +210,7 @@ export default function PetScreen() {
             >
               {pendingActionType === "recycle" && "What did you recycle?"}
               {pendingActionType === "walk" && "How long did you walk?"}
-              {pendingActionType === "energySave" &&
-                "How did you save energy?"}
+              {pendingActionType === "energySave" && "How did you save energy?"}
             </Text>
 
             {/* Recycle options */}
@@ -241,6 +228,10 @@ export default function PetScreen() {
                       borderRadius: 999,
                       backgroundColor: "#FFFFFF",
                       marginBottom: 8,
+                      shadowColor: "#F5C2E7",
+                      shadowOpacity: 0.2,
+                      shadowRadius: 6,
+                      shadowOffset: { width: 0, height: 2 },
                     }}
                   >
                     <Text style={{ textAlign: "center" }}>{option}</Text>
@@ -323,7 +314,7 @@ const styles = StyleSheet.create({
   // whole screen background
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFEAF7", // soft pastel pink
+    backgroundColor: "#FFEAF7",
   },
   background: {
     flex: 1,
@@ -331,7 +322,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   // soft pastel glows behind the egg
   glowTop: {
     position: "absolute",
@@ -350,14 +340,14 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(186, 230, 253, 0.55)", // baby-blue glow
   },
 
-  // 🌸 egg shell card
+  // 🌸 egg shell card (smaller + tighter)
   container: {
-    width: 400,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    borderRadius: 200, // egg-ish
-    backgroundColor: "#FFB3DA", // pastel pink shell
-    borderWidth: 2,
+    width: 400,              // was 400
+    paddingVertical: 20,     // was 20
+    paddingHorizontal: 20,   // was 20
+    borderRadius: 180,       // was 200
+    backgroundColor: "#FFB3DA",
+    borderWidth: 4,
     borderColor: "#FF8CCF",
     alignItems: "center",
     shadowColor: "#F472B6",
@@ -384,17 +374,18 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
-  // 🪟 LCD screen area (where pet + stats live)
+
+  // 🪟 LCD screen area (slightly shorter)
   petCard: {
     width: "80%",
     alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 12,
+    paddingVertical: 10,     // was 16
+    paddingHorizontal: 10,   // was 12
     borderRadius: 24,
-    backgroundColor: "#FFFDF5", // soft cream screen
+    backgroundColor: "#FFFDF5",
     borderWidth: 1.5,
     borderColor: "#FBCFE8",
-    marginBottom: 18,
+    marginBottom: 14,        // was 18
   },
   petEmoji: {
     fontSize: 52,
@@ -435,15 +426,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  // 💖 bottom action buttons (like Tamagotchi buttons area)
+  // actions + buttons
   actionsWrapper: {
-    marginTop: 12,
-    width: "50%",
-    gap: 10,
+    marginTop: 8,            // was 12
+    width: "55%",            // was 50%, this gives a bit more room so they don't stack weirdly
+    gap: 8,                  // was 10
   },
   actionButton: {
     width: "100%",
-    paddingVertical: 12,
+    paddingVertical: 5,     // keep this smaller so the stack isn’t huge
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
@@ -455,7 +446,7 @@ const styles = StyleSheet.create({
   actionText: {
     fontFamily: "Baloo2_600SemiBold",
     letterSpacing: 0.5,
-    fontSize: 15,
+    fontSize: 14,            // slightly smaller
   },
 
   // individual pastel colors
