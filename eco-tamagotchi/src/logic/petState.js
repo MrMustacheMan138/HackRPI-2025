@@ -2,14 +2,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Where we store stuff
-const PET_KEY = "pet_state_v1";
+const PET_KEY = "pet_state_v2";
 const HISTORY_KEY = "pet_history_v1";
 
 // 💚 Moods go from best -> worst
 const MOOD_STEPS = ["happy", "okay", "meh", "sad", "miserable"];
 
 // How fast mood decays if player does nothing (e.g. one step every 6h)
-const DECAY_INTERVAL_MS = 15;
+const DECAY_INTERVAL_MS = 15 * 1000; // 15 seconds;
 
 // XP per action (tune however you like)
 const ACTION_XP = {

@@ -17,21 +17,27 @@ export default function HomeScreen() {
 
   // Check if a pet already exists
   useEffect(() => {
-    async function checkPet() {
-      try {
-        const pet = await getPetState();
-        console.log("Loaded pet:", pet);
+    let isMounted = true;
 
-        if (pet) {
-          setHasPet(true);
-        }
-      } catch (err) {
-        console.log("Error loading pet:", err);
+    async function refreshPet() {
+      const petData = await getPetState();
+      if (isMounted && petData) {
+        setPet(petData);
       }
     }
 
-    checkPet();
+    // call immediately
+    refreshPet();
+
+    // then every 5 seconds (tune this)
+    const intervalId = setInterval(refreshPet, 5000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
   }, []);
+
 
   const handlePress = async () => {
     // Create/reset pet if none exists
