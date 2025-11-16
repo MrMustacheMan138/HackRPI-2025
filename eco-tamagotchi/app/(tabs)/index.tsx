@@ -28,10 +28,13 @@ export default function HomeScreen() {
     }
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
     // navigate to the Pet tab
     router.push("/(tabs)/pet");
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     navigation.navigate("Pet" as never);
@@ -102,6 +105,7 @@ const styles = StyleSheet.create({
   ctaButton: {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     marginTop: 4,
     backgroundColor: "#FFB3DA",
     paddingHorizontal: 28,
@@ -109,11 +113,16 @@ const styles = StyleSheet.create({
 =======
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     marginTop: 10,
     backgroundColor: "#FFB3DA",
     paddingHorizontal: 30,
     paddingVertical: 16,
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -129,10 +138,13 @@ const styles = StyleSheet.create({
     color: "#512051",
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     fontWeight: "800",
     fontSize: 16,
     letterSpacing: 0.8,
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     fontSize: 12,
@@ -140,6 +152,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     textAlign: "center",
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
