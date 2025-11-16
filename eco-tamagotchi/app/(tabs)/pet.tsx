@@ -53,10 +53,10 @@ type Achievement = {
 
 // Achievement icon mapping (local images)
 const achievementIcons: Record<string, any> = {
-  recycler: require("../../src/storage/achievements_icons/recycler.png"),
-  first_steps: require("../../src/storage/achievements_icons/first_steps.png"),
-  energy_saver: require("../../src/storage/achievements_icons/energy_saver.png"),
-  level_5: require("../../src/storage/achievements_icons/level_5.png"),
+  recycler: require("eco-tamagotchi\assets\images\trophy_placeholder.png"),
+  first_steps: require("eco-tamagotchi\assets\images\trophy_placeholder.png"),
+  energy_saver: require("eco-tamagotchi\assets\images\trophy_placeholder.png"),
+  level_5: require("eco-tamagotchi\assets\images\trophy_placeholder.png"),
 };
 
 // Load achievements from JSON
@@ -184,11 +184,11 @@ export default function PetScreen() {
             <View style={styles.petCard}>
               <Image source={petImage} style={styles.petImage} resizeMode="contain" />
               <Text style={styles.petName}>{stageName}</Text>
+              <Text style={styles.petLevel}>Level: {pet.level}</Text>
               <Text style={styles.petMood}>
                 Mood: <Text style={styles.petMoodValue}>{pet.mood}</Text>
               </Text>
               <Text style={styles.petStat}>XP: {pet.xp}</Text>
-              <Text style={styles.petStat}>Level: {pet.level}</Text>
             </View>
 
             <View style={styles.actionsWrapper}>
@@ -270,12 +270,14 @@ const styles = StyleSheet.create({
   appTitle: { fontFamily: "PressStart2P_400Regular", fontSize: 18, color: "#7C3AED", textAlign: "center", letterSpacing: 1.5, marginBottom: 6 },
   petCard: { width: "80%", alignItems: "center", paddingVertical: 10, paddingHorizontal: 10, borderRadius: 24, backgroundColor: "#FFFDF5", borderWidth: 1.5, borderColor: "#FBCFE8", marginBottom: 14 },
   petName: { fontFamily: "PressStart2P_400Regular", fontSize: 20, color: "#FB7185", marginBottom: 6 },
+  petLevel: { fontFamily: "PressStart2P_400Regular", fontSize: 18, fontWeight: "bold", color: "#7C3AED", marginBottom: 12 },
   petMood: { fontFamily: "PressStart2P_400Regular", fontSize: 15, color: "#4B5563", marginBottom: 2 },
   petMoodValue: { fontFamily: "PressStart2P_400Regular", color: "#F59E0B" },
   petStat: { fontFamily: "PressStart2P_400Regular", fontSize: 14, color: "#6B7280" },
   petImage: { width: 120, height: 120, marginBottom: 8 },
   actionsWrapper: { marginTop: 8, width: "55%", gap: 8 },
   actionButton: { width: "100%", paddingVertical: 5, borderRadius: 999, alignItems: "center", justifyContent: "center", shadowColor: "#F9A8D4", shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+  actionText: { fontFamily: "PressStart2P_400Regular", letterSpacing: 0.5, fontSize: 14 },
   recycleButton: { backgroundColor: "#BBF7D0" },
   walkButton: { backgroundColor: "#BFDBFE" },
   energyButton: { backgroundColor: "#FDE68A" },

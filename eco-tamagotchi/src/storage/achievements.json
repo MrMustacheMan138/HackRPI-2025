@@ -3,24 +3,24 @@
     "id": "recycler",
     "title": "Recycler",
     "description": "Recycled for the first time!",
-    "icon": "recycler.png"
+    "icon": "eco-tamagotchi\assets\images\trophy_placeholder.png"
   },
   {
     "id": "first_steps",
     "title": "First Steps",
     "description": "Went for your first walk!",
-    "icon": "first_steps.png"
+    "icon": "eco-tamagotchi\assets\images\trophy_placeholder.png"
   },
   {
     "id": "energy_saver",
     "title": "Energy Saver",
     "description": "Saved energy for the planet!",
-    "icon": "energy_saver.png"
+    "icon": "eco-tamagotchi\assets\images\trophy_placeholder.png"
   },
   {
     "id": "level_5",
     "title": "Level 5",
     "description": "Reached level 5!",
-    "icon": "level_5.png"
+    "icon": "eco-tamagotchi\assets\images\trophy_placeholder.png"
   }
 ]
