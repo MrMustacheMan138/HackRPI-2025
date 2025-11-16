@@ -90,10 +90,9 @@ function applyDecay(pet) {
 
 // --- LEVEL-UP LOGIC ---
 function computeLevel(xp) {
-  if (xp < 20) return 1;
-  if (xp < 50) return 2;
-  if (xp < 100) return 3;
-  return 4;
+  const rawLevel = Math.floor(xp / 10) + 1;  // 0–9 xp => 1, 10–19 => 2, etc.
+  const clamped = Math.max(1, Math.min(99, rawLevel)); // keep between 1 and 99
+  return clamped;
 }
 
 // --- LOG ACTIONS (called by UI when you press buttons) ---
