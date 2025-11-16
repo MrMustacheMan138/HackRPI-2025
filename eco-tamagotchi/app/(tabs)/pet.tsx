@@ -331,7 +331,8 @@ export default function PetScreen() {
                       textAlign: "center",
                     }}
                   >
-                    {option}
+                    {option}{" "}
+                    <Text style={{ fontSize: 10, color: "#22C55E" }}>+5XP</Text>
                   </Text>
                 </Pressable>
               ))}
@@ -355,7 +356,8 @@ export default function PetScreen() {
                       textAlign: "center",
                     }}
                   >
-                    {option}
+                    {option}{" "}
+                    <Text style={{ fontSize: 10, color: "#22C55E" }}>+10XP</Text>
                   </Text>
                 </Pressable>
               ))}
@@ -382,7 +384,8 @@ export default function PetScreen() {
                         textAlign: "center",
                       }}
                     >
-                      {option}
+                      {option}{" "}
+                      <Text style={{ fontSize: 10, color: "#22C55E" }}>+7XP</Text>
                   </Text>
                   </Pressable>
                 )
