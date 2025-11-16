@@ -156,21 +156,21 @@ export default function PetScreen() {
                 style={[styles.actionButton, styles.recycleButton]}
                 onPress={() => openActionModal("recycle")}
               >
-                <Text style={styles.actionText}>RECYCLE ♻️</Text>
+                <Text style={styles.actionText}>RECYCLE</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.actionButton, styles.walkButton]}
                 onPress={() => openActionModal("walk")}
               >
-                <Text style={styles.actionText}>WALK 🚶</Text>
+                <Text style={styles.actionText}>WALK</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.actionButton, styles.energyButton]}
                 onPress={() => openActionModal("energySave")}
               >
-                <Text style={styles.actionText}>SAVE ENERGY 💡</Text>
+                <Text style={styles.actionText}>SAVE ENERGY</Text>
               </TouchableOpacity>
             </View>
           </View>
