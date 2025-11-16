@@ -7,12 +7,25 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Image,
+  Modal,
+  Pressable,
 } from "react-native";
 import { getPetState, logAction, resetPet, loadHistory} from "../../src/logic/petState.js";
 import HistorySidebar from "./components/history_sidebar";
 //import { playSound } from "../../src/utils/sounds";
 
 type ActionType = "recycle" | "walk" | "energySave";
+
+type ActionDetail =
+  | "Plastic"
+  | "Paper"
+  | "Electronics"
+  | "Short walk"
+  | "Medium walk"
+  | "Long walk"
+  | "Turned off lights"
+  | "Shorter shower"
+  | "Unplugged devices";
 
 type PetState = {
   mood: string;
@@ -52,21 +65,42 @@ export default function PetScreen() {
 
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
+  const [pendingActionType, setPendingActionType] =
+    useState<ActionType | null>(null);
+  const [isActionModalVisible, setIsActionModalVisible] = useState(false);
 
-    const handleAction = async (actionType: ActionType) => {
+  const handleAction = async (
+    actionType: ActionType,
+    detail?: ActionDetail
+  ) => {
     const oldLevel = pet.level; // Save the current level
-    const updatedPet = await logAction(actionType);
+    const updatedPet = await logAction(actionType, detail);
     setPet(updatedPet);
-    
+
     // Check if leveled up and play sound
     if (updatedPet.level > oldLevel) {
-        //playSound('levelUp');
+      //playSound("levelUp");
     }
-    
+
     // Refresh history after action
     const historyData = await loadHistory();
     setHistory(historyData);
-    };
+  };
+  
+  const openActionModal = (type: ActionType) => {
+    setPendingActionType(type);
+    setIsActionModalVisible(true);
+  };
+
+  const handleConfirmAction = async (detail: ActionDetail) => {
+    if (!pendingActionType) return;
+
+    await handleAction(pendingActionType, detail);
+
+    setIsActionModalVisible(false);
+    setPendingActionType(null);
+  };
+
 
   const petImage = getPetImage(pet.level);
   const stageName = pet.stage?.name ?? "Sprout";
@@ -133,6 +167,127 @@ export default function PetScreen() {
           {/* Reset */}
         </View>
       </View>
+
+      {/* Action detail modal */}
+      <Modal
+        visible={isActionModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsActionModalVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.4)",
+          }}
+        >
+          <View
+            style={{
+              width: "80%",
+              borderRadius: 24,
+              padding: 20,
+              backgroundColor: "#FFE8F7",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "700",
+                textAlign: "center",
+                marginBottom: 12,
+                color: "#7C3AED",
+              }}
+            >
+              {pendingActionType === "recycle" && "What did you recycle?"}
+              {pendingActionType === "walk" && "How long did you walk?"}
+              {pendingActionType === "energySave" &&
+                "How did you save energy?"}
+            </Text>
+
+            {/* Recycle options */}
+            {pendingActionType === "recycle" && (
+              <>
+                {["Plastic", "Paper", "Electronics"].map((option) => (
+                  <Pressable
+                    key={option}
+                    onPress={() =>
+                      handleConfirmAction(option as ActionDetail)
+                    }
+                    style={{
+                      paddingVertical: 10,
+                      paddingHorizontal: 14,
+                      borderRadius: 999,
+                      backgroundColor: "#FFFFFF",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text style={{ textAlign: "center" }}>{option}</Text>
+                  </Pressable>
+                ))}
+              </>
+            )}
+
+            {/* Walk options */}
+            {pendingActionType === "walk" && (
+              <>
+                {["Short walk", "Medium walk", "Long walk"].map((option) => (
+                  <Pressable
+                    key={option}
+                    onPress={() =>
+                      handleConfirmAction(option as ActionDetail)
+                    }
+                    style={{
+                      paddingVertical: 10,
+                      paddingHorizontal: 14,
+                      borderRadius: 999,
+                      backgroundColor: "#FFFFFF",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text style={{ textAlign: "center" }}>{option}</Text>
+                  </Pressable>
+                ))}
+              </>
+            )}
+
+            {/* Energy-save options */}
+            {pendingActionType === "energySave" && (
+              <>
+                {[
+                  "Turned off lights",
+                  "Shorter shower",
+                  "Unplugged devices",
+                ].map((option) => (
+                  <Pressable
+                    key={option}
+                    onPress={() =>
+                      handleConfirmAction(option as ActionDetail)
+                    }
+                    style={{
+                      paddingVertical: 10,
+                      paddingHorizontal: 14,
+                      borderRadius: 999,
+                      backgroundColor: "#FFFFFF",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text style={{ textAlign: "center" }}>{option}</Text>
+                  </Pressable>
+                ))}
+              </>
+            )}
+
+            <Pressable
+              onPress={() => setIsActionModalVisible(false)}
+              style={{ marginTop: 8, alignSelf: "center" }}
+            >
+              <Text style={{ color: "#6B7280" }}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
       {/* NEW ADD */}
       <HistorySidebar 

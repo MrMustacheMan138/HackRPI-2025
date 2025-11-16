@@ -36,9 +36,9 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.title}>Your new eco-pet best friend 🌱</Text>
+        <Text style={styles.title}>Eco-Tamagotchi🌱</Text>
         <Text style={styles.subtitle}>
-          Take care of your tiny forest buddy by logging real-world eco-actions
+          Take care of your Tamagotchi friend by logging real-world eco-actions
           like recycling, walking, and saving energy. As you build habits, your
           pet grows happier and evolves!
         </Text>
