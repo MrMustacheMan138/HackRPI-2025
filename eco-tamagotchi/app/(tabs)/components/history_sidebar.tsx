@@ -11,6 +11,14 @@ import {
 } from "react-native";
 import { PressStart2P_400Regular } from "@expo-google-fonts/press-start-2p";
 
+// Achievement icon mapping
+const achievementIcons: Record<string, any> = {
+  recycler: require("../../../assets/images/trophy_placeholder.png"),
+  first_steps: require("../../../assets/images/trophy_placeholder.png"),
+  energy_saver: require("../../../assets/images/trophy_placeholder.png"),
+  level_5: require("../../../assets/images/trophy_placeholder.png"),
+};
+
 // Props
 type HistorySidebarProps = {
   visible: boolean;
@@ -78,7 +86,7 @@ export default function HistorySidebar({
           return (
             <View style={styles.achievementItem}>
               <Image
-                source={require("../../" + item.icon.replace("../../",""))}
+                source={achievementIcons[item.id] || achievementIcons.recycler}
                 style={[styles.achievementIcon, {opacity: unlocked ? 1 : 0.3}]}
               />
               <Text style={[styles.achievementText, {color: unlocked ? "#FFF" : "#A1A1AA"}]}>
