@@ -27,6 +27,7 @@ export default function HomeScreen() {
     }
 
     // call immediately
+    // call immediately
     checkPet();
 
     // then every 5 seconds (tune this)
@@ -36,9 +37,6 @@ export default function HomeScreen() {
       isMounted = false;
       clearInterval(intervalId);
     };
-  }, []);
-
-    checkPet();
   }, []);
 
   const handlePress = async () => {
