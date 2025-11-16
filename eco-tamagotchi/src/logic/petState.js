@@ -13,9 +13,21 @@ const DECAY_INTERVAL_MS = 15 * 1000;
 
 // XP per action (tune however you like)
 const ACTION_XP = {
-  recycle: 5,
-  walk: 10,
-  energySave: 7,
+  recycle: {
+    "Plastic": 5,
+    "Paper": 5,
+    "Electronics": 20,
+  },
+  walk: {
+    "Short walk": 5,
+    "Medium walk": 10,
+    "Long walk": 15,
+  },
+  energySave: {
+    "Turned off lights": 3,
+    "Shorter shower": 5,
+    "Unplugged devices": 5,
+  },
 };
 
 // Simple level-up rule: every 20 xp = +1 level
@@ -138,7 +150,7 @@ export async function logAction(actionType, detail) {
   }
 
   // XP gain
-  const xpGain = ACTION_XP[actionType] ?? 5;
+  const xpGain = ACTION_XP[actionType]?.[detail] ?? 5;
   const oldLevel = pet.level || 1;
   const newXp = (pet.xp || 0) + xpGain;
   const newLevel = computeLevelFromXp(newXp);

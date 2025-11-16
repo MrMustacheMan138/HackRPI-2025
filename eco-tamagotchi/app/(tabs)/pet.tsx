@@ -313,10 +313,10 @@ export default function PetScreen() {
             </Text>
 
             {pendingActionType === "recycle" &&
-              ["Plastic", "Paper", "Electronics"].map((option) => (
+              [{label: "Plastic", xp: 5}, {label: "Paper", xp: 5}, {label: "Electronics", xp: 20}].map((item) => (
                 <Pressable
-                  key={option}
-                  onPress={() => handleConfirmAction(option as ActionDetail)}
+                  key={item.label}
+                  onPress={() => handleConfirmAction(item.label as ActionDetail)}
                   style={{
                     paddingVertical: 10,
                     paddingHorizontal: 14,
@@ -331,17 +331,17 @@ export default function PetScreen() {
                       textAlign: "center",
                     }}
                   >
-                    {option}{" "}
-                    <Text style={{ fontSize: 10, color: "#22C55E" }}>+5XP</Text>
+                    {item.label}{" "}
+                    <Text style={{ fontSize: 10, color: "#22C55E" }}>+{item.xp}XP</Text>
                   </Text>
                 </Pressable>
               ))}
 
             {pendingActionType === "walk" &&
-              ["Short walk", "Medium walk", "Long walk"].map((option) => (
+              [{label: "Short walk", xp: 5}, {label: "Medium walk", xp: 10}, {label: "Long walk", xp: 15}].map((item) => (
                 <Pressable
-                  key={option}
-                  onPress={() => handleConfirmAction(option as ActionDetail)}
+                  key={item.label}
+                  onPress={() => handleConfirmAction(item.label as ActionDetail)}
                   style={{
                     paddingVertical: 10,
                     paddingHorizontal: 14,
@@ -356,19 +356,19 @@ export default function PetScreen() {
                       textAlign: "center",
                     }}
                   >
-                    {option}{" "}
-                    <Text style={{ fontSize: 10, color: "#22C55E" }}>+10XP</Text>
+                    {item.label}{" "}
+                    <Text style={{ fontSize: 10, color: "#22C55E" }}>+{item.xp}XP</Text>
                   </Text>
                 </Pressable>
               ))}
 
             {pendingActionType === "energySave" &&
-              ["Turned off lights", "Shorter shower", "Unplugged devices"].map(
-                (option) => (
+              [{label: "Turned off lights", xp: 3}, {label: "Shorter shower", xp: 5}, {label: "Unplugged devices", xp: 5}].map(
+                (item) => (
                   <Pressable
-                    key={option}
+                    key={item.label}
                     onPress={() =>
-                      handleConfirmAction(option as ActionDetail)
+                      handleConfirmAction(item.label as ActionDetail)
                     }
                     style={{
                       paddingVertical: 10,
@@ -384,8 +384,8 @@ export default function PetScreen() {
                         textAlign: "center",
                       }}
                     >
-                      {option}{" "}
-                      <Text style={{ fontSize: 10, color: "#22C55E" }}>+7XP</Text>
+                      {item.label}{" "}
+                      <Text style={{ fontSize: 10, color: "#22C55E" }}>+{item.xp}XP</Text>
                   </Text>
                   </Pressable>
                 )
