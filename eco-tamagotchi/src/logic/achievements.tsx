@@ -6,41 +6,41 @@ type Achievement = {
   id: string;
   title: string;
   description: string;
-  icon: string; // path to icon image
+  icon: string;
 };
 
 type Props = {
   achievement: Achievement;
-  index: number; // for stacking multiple toasts
+  index: number;
   onHide: () => void;
 };
 
 export default function AchievementToast({ achievement, index, onHide }: Props) {
-  const textAnim = useRef(new Animated.Value(-150)).current; // text slides horizontally
+  const slideAnim = useRef(new Animated.Value(0)).current; // width reveal
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Animate text sliding in from left of icon
+    // Slide width and fade in
     Animated.parallel([
-      Animated.timing(textAnim, {
-        toValue: 0,
-        duration: 400,
-        useNativeDriver: true,
+      Animated.timing(slideAnim, {
+        toValue: 1,
+        duration: 450,
+        useNativeDriver: false, // width animation = can't use native
       }),
       Animated.timing(opacityAnim, {
         toValue: 1,
-        duration: 400,
+        duration: 450,
         useNativeDriver: true,
       }),
     ]).start();
 
-    // Hide after 3 sec
+    // Fade + slide out after 3s
     const timer = setTimeout(() => {
       Animated.parallel([
-        Animated.timing(textAnim, {
-          toValue: -150,
+        Animated.timing(slideAnim, {
+          toValue: 0,
           duration: 400,
-          useNativeDriver: true,
+          useNativeDriver: false,
         }),
         Animated.timing(opacityAnim, {
           toValue: 0,
@@ -53,20 +53,29 @@ export default function AchievementToast({ achievement, index, onHide }: Props) 
     return () => clearTimeout(timer);
   }, []);
 
+  const textWidth = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 200], // final text width
+  });
+
   return (
     <View style={[styles.container, { top: 20 + index * 70 }]}>
-      {/* Fixed icon */}
-      <Image source={{ uri: achievement.icon }} style={styles.icon} />
+      {/* Circle Trophy Icon */}
+      <View style={styles.iconWrapper}>
+        <Image
+          source={require("../../assets/images/trophy_placeholder.png")}
+          style={styles.icon}
+        />
+      </View>
 
-      {/* Sliding text */}
+      {/* Sliding Reveal Text */}
       <Animated.View
         style={[
-          styles.textWrapper,
-          { transform: [{ translateX: textAnim }], opacity: opacityAnim },
+          styles.textBox,
+          { width: textWidth, opacity: opacityAnim },
         ]}
       >
         <Text style={styles.title}>{achievement.title}</Text>
-        <Text style={styles.description}>{achievement.description}</Text>
       </Animated.View>
     </View>
   );
@@ -78,23 +87,40 @@ const styles = StyleSheet.create({
     right: 20,
     flexDirection: "row",
     alignItems: "center",
-    width: 280,
+    width: 260,
     zIndex: 999,
   },
+
+  iconWrapper: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#1F2937",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+  },
+
   icon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24, // make it circular
-    backgroundColor: "#444", // fallback if icon fails
+    width: 40,
+    height: 40,
   },
-  textWrapper: {
-    marginLeft: 12,
-    backgroundColor: "#222",
+
+  textBox: {
+    backgroundColor: "#1F2937",
+    marginLeft: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    flex: 1,
+    overflow: "hidden", // prevents showing text until slideAnim expands
   },
-  title: { fontFamily: "PressStart2P_400Regular", color: "#FFF", fontSize: 12 },
-  description: { fontFamily: "PressStart2P_400Regular", color: "#DDD", fontSize: 10 },
+
+  title: {
+    fontFamily: "PressStart2P_400Regular",
+    color: "#FFFFFF",
+    fontSize: 11,
+  },
 });
