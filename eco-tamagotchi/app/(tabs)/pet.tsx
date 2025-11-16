@@ -71,6 +71,13 @@ export default function PetScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+        {/* Floating History Button - TOP RIGHT */}
+        <TouchableOpacity 
+            style={styles.floatingHistoryButton} 
+            onPress={() => setSidebarVisible(true)}
+        >
+            <Text style={styles.floatingHistoryText}>📜</Text>
+        </TouchableOpacity>
       <View style={styles.background}>
         <View style={styles.glowTop} />
         <View style={styles.glowBottom} />
@@ -121,15 +128,6 @@ export default function PetScreen() {
               <Text style={styles.actionText}>SAVE ENERGY 💡</Text>
             </TouchableOpacity>
           </View>
-
-            {/* History button */}
-            <TouchableOpacity 
-                style={styles.historyButton} 
-                onPress={() => setSidebarVisible(true)}
-            >
-                <Text style={styles.historyText}>📜 HISTORY</Text>
-            </TouchableOpacity>
-
           {/* Reset */}
           <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
             <Text style={styles.resetText}>RESET PET 🔄</Text>
@@ -311,25 +309,27 @@ const styles = StyleSheet.create({
     letterSpacing: 1.1,
     fontSize: 12,
   },
-  // History button
-    historyButton: {
-        marginTop: 12,
-        alignSelf: "center",
-        paddingHorizontal: 20,
-        paddingVertical: 9,
-        borderRadius: 999,
+    // Floating history button (top right)
+    floatingHistoryButton: {
+        position: "absolute",
+        top: 60, // Adjust based on your header
+        right: 20,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
         backgroundColor: "#E9D5FF", // soft purple
+        alignItems: "center",
+        justifyContent: "center",
         shadowColor: "#C084FC",
         shadowOpacity: 0.35,
         shadowRadius: 10,
         shadowOffset: { width: 0, height: 5 },
+        zIndex: 100,
     },
-    historyText: {
-        color: "#6B21A8",
-        fontWeight: "800",
-        letterSpacing: 1.1,
-        fontSize: 12,
+    floatingHistoryText: {
+        fontSize: 24,
     },
+
 });
 
 
