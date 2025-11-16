@@ -1,248 +1,123 @@
-// app/(tabs)/components/history_sidebar.tsx
-import React from "react";
+import React, { useState } from "react";
 import {
+  Modal,
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
+  FlatList,
+  Image,
+  Pressable,
 } from "react-native";
+import { PressStart2P_400Regular } from "@expo-google-fonts/press-start-2p";
 
-type HistoryEntry = {
-  id: string;
-  action: string;
-  xp: number;
-  timestamp: number;
-};
-
-type Props = {
+// Props
+type HistorySidebarProps = {
   visible: boolean;
   onClose: () => void;
-  history: HistoryEntry[];
-  // 👇 new optional callback from parent to reset pet
-  onResetPet?: () => void;
+  history: any[];
+  petActions?: Record<string, number>;
+  achievements?: any[];
+  onResetPet: () => void;
 };
-
-const actionEmojis = {
-  recycle: "♻️",
-  walk: "🚶",
-  energySave: "💡",
-};
-
-const actionNames = {
-  recycle: "Recycled",
-  walk: "Walked",
-  energySave: "Saved energy",
-};
-
-function formatTimestamp(timestamp: number) {
-  const now = Date.now();
-  const diff = now - timestamp;
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-
-  if (minutes < 1) return "Just now";
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days === 1) return "Yesterday";
-  return `${days}d ago`;
-}
 
 export default function HistorySidebar({
   visible,
   onClose,
   history,
+  petActions = {},
+  achievements = [],
   onResetPet,
-}: Props) {
-  if (!visible) return null;
+}: HistorySidebarProps) {
+  const [view, setView] = useState<"menu" | "actions" | "achievements">("menu");
 
-  const handleResetPress = () => {
-    if (onResetPet) {
-      onResetPet(); // parent does reset + state update
-    }
-    onClose();
-  };
+  const renderMenu = () => (
+    <View style={styles.menu}>
+      <TouchableOpacity style={styles.menuButton} onPress={() => setView("actions")}>
+        <Text style={styles.menuButtonText}>View Action Log</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuButton} onPress={() => setView("achievements")}>
+        <Text style={styles.menuButtonText}>View Achievements</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.menuButton, {backgroundColor:"#F87171"}]} onPress={onResetPet}>
+        <Text style={styles.menuButtonText}>Reset to Egg</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.menuButton, {backgroundColor:"#9CA3AF"}]} onPress={onClose}>
+        <Text style={styles.menuButtonText}>Close</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderActions = () => (
+    <View style={{flex:1}}>
+      <Text style={styles.title}>Action Log</Text>
+      <FlatList
+        data={[...history].reverse()}
+        keyExtractor={(_, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.actionItem}>
+            <Text style={styles.actionText}>{item.action} - {item.detail ?? ""}</Text>
+          </View>
+        )}
+      />
+      <TouchableOpacity style={styles.backButton} onPress={() => setView("menu")}>
+        <Text style={styles.menuButtonText}>Back</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderAchievements = () => (
+    <View style={{flex:1}}>
+      <Text style={styles.title}>Achievements</Text>
+      <FlatList
+        data={achievements}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        renderItem={({ item }) => {
+          const unlocked = petActions[item.id];
+          return (
+            <View style={styles.achievementItem}>
+              <Image
+                source={require("../../" + item.icon.replace("../../",""))}
+                style={[styles.achievementIcon, {opacity: unlocked ? 1 : 0.3}]}
+              />
+              <Text style={[styles.achievementText, {color: unlocked ? "#FFF" : "#A1A1AA"}]}>
+                {item.title}
+              </Text>
+            </View>
+          );
+        }}
+      />
+      <TouchableOpacity style={styles.backButton} onPress={() => setView("menu")}>
+        <Text style={styles.menuButtonText}>Back</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
-    <View style={styles.overlay}>
-      <TouchableOpacity style={styles.backdrop} onPress={onClose} />
-
-      <View style={styles.sidebar}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Action Log</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeText}>✕</Text>
-          </TouchableOpacity>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+      <View style={styles.modalBackground}>
+        <View style={styles.sidebar}>
+          {view === "menu" && renderMenu()}
+          {view === "actions" && renderActions()}
+          {view === "achievements" && renderAchievements()}
         </View>
-
-        <ScrollView style={styles.scrollView}>
-          {history.length === 0 ? (
-            <Text style={styles.emptyText}>
-              No actions yet! Start taking care of your pet 🌱
-            </Text>
-          ) : (
-            history.map((entry) => (
-              <View key={entry.id} style={styles.entry}>
-                <Text style={styles.emoji}>
-                  {actionEmojis[
-                    entry.action as keyof typeof actionEmojis
-                  ] || "🌱"}
-                </Text>
-                <View style={styles.entryContent}>
-                  <Text style={styles.actionName}>
-                    {actionNames[
-                      entry.action as keyof typeof actionNames
-                    ] || entry.action}
-                  </Text>
-                  <Text style={styles.timestamp}>
-                    {formatTimestamp(entry.timestamp)}
-                  </Text>
-                </View>
-                <Text style={styles.xp}>+{entry.xp} XP</Text>
-              </View>
-            ))
-          )}
-        </ScrollView>
-
-        {/* 🔁 Reset-to-egg button at bottom of sidebar */}
-        {onResetPet && (
-          <TouchableOpacity
-            style={styles.resetButton}
-            onPress={handleResetPress}
-          >
-            <Text style={styles.resetText}>Reset to Egg</Text>
-          </TouchableOpacity>
-        )}
       </View>
-    </View>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1000,
-  },
-  backdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.45)",
-  },
-  sidebar: {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: 300,
-    backgroundColor: "#FFF5FA", // soft pastel to match main screen
-    shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    shadowOffset: { width: -3, height: 0 },
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    borderBottomWidth: 2,
-    borderBottomColor: "#FFB3DA",
-    backgroundColor: "#FFE5F1",
-  },
-  title: {
-    fontFamily: "PressStart2P_400Regular",
-    fontSize: 12,
-    color: "#7C3AED",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  closeButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: "#FFB3DA",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeText: {
-    fontFamily: "Baloo2_600SemiBold",
-    fontSize: 18,
-    color: "#512051",
-  },
-  scrollView: {
-    flex: 1,
-    padding: 12,
-  },
-  emptyText: {
-    fontFamily: "Baloo2_400Regular",
-    textAlign: "center",
-    color: "#9CA3AF",
-    fontSize: 14,
-    marginTop: 40,
-    paddingHorizontal: 20,
-  },
-  entry: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderRadius: 14,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#FBCFE8",
-  },
-  emoji: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  entryContent: {
-    flex: 1,
-  },
-  actionName: {
-    fontFamily: "Baloo2_600SemiBold",
-    fontSize: 15,
-    color: "#111827",
-    marginBottom: 2,
-  },
-  timestamp: {
-    fontFamily: "Baloo2_400Regular",
-    fontSize: 12,
-    color: "#9CA3AF",
-  },
-  xp: {
-    fontFamily: "Baloo2_600SemiBold",
-    fontSize: 14,
-    color: "#10B981",
-  },
-
-  // 🔁 reset button styles
-  resetButton: {
-    marginHorizontal: 16,
-    marginBottom: 18,
-    paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: "#FECACA",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#FCA5A5",
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  resetText: {
-    fontFamily: "Baloo2_600SemiBold",
-    fontSize: 13,
-    color: "#7F1D1D",
-    letterSpacing: 0.5,
-  },
+  modalBackground:{flex:1, backgroundColor:"rgba(0,0,0,0.4)", justifyContent:"center", alignItems:"center"},
+  sidebar:{width:"90%", maxHeight:"80%", backgroundColor:"#1F2937", borderRadius:16, padding:16},
+  menu:{flex:1, justifyContent:"center", gap:12},
+  menuButton:{backgroundColor:"#4B5563", padding:12, borderRadius:12, alignItems:"center"},
+  menuButtonText:{fontFamily:"PressStart2P_400Regular", color:"#FFF", fontSize:12},
+  title:{fontFamily:"PressStart2P_400Regular", color:"#FFF", fontSize:14, marginBottom:8, textAlign:"center"},
+  actionItem:{padding:8, borderBottomWidth:1, borderBottomColor:"#374151"},
+  actionText:{fontFamily:"PressStart2P_400Regular", color:"#FFF", fontSize:12},
+  backButton:{marginTop:12, backgroundColor:"#4B5563", padding:10, borderRadius:12, alignItems:"center"},
+  achievementItem:{flex:1, alignItems:"center", margin:8},
+  achievementIcon:{width:48,height:48,borderRadius:8, marginBottom:4},
+  achievementText:{fontFamily:"PressStart2P_400Regular", fontSize:10, textAlign:"center"}
 });
