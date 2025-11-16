@@ -1,10 +1,10 @@
 // src/logic/personality.js
 
-// const ACTION_MESSAGES = {
-//   recycle: 'Your pet is proud you recycled! ♻️',
-//   walk: 'Your pet loved the fresh air from your walk! 🌿',
-//   energySave: 'Your pet glows with all that saved energy! 💡',
-// };
+const ACTION_MESSAGES = {
+  recycle: 'Your pet is proud you recycled! ♻️',
+  walk: 'Your pet loved the fresh air from your walk! 🌿',
+  energySave: 'Your pet glows with all that saved energy! 💡',
+};
 
 export function getPersonalityMessage(petState, lastActionId) {
   // Prefer specific message based on action
