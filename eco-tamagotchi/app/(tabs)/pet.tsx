@@ -115,10 +115,10 @@ export default function PetScreen() {
     <SafeAreaView style={styles.safeArea}>
         {/* Floating History Button - TOP RIGHT */}
         <TouchableOpacity 
-            style={styles.floatingHistoryButton} 
-            onPress={() => setSidebarVisible(true)}
+          style={styles.floatingHistoryButton} 
+          onPress={() => setSidebarVisible(true)}
         >
-            <Text style={styles.floatingHistoryText}>📜</Text>
+          <Text style={styles.floatingHistoryText}>☰</Text>
         </TouchableOpacity>
       <View style={styles.background}>
         <View style={styles.glowTop} />
@@ -498,6 +498,8 @@ const styles = StyleSheet.create({
   },
   floatingHistoryText: {
     fontSize: 24,
+    fontWeight: "700",
+    color: "#4B5563", // dark gray to match UI
   },
 });
 
