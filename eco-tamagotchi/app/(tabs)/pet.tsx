@@ -87,17 +87,34 @@ export default function PetScreen() {
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
   const toastAnim = new Animated.Value(0);
 
-  // Load pet state & history
+  // Load pet state & history, and refresh periodically for mood decay
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchPet() {
       const petData = await getPetState();
-      if (petData) setPet(petData);
+      if (isMounted && petData) {
+        setPet(petData);
+      }
 
       const historyData = await loadHistory();
-      setHistory(historyData);
+      if (isMounted) {
+        setHistory(historyData);
+      }
     }
+
+    // Run once immediately
     fetchPet();
+
+    // Then refresh every 5 seconds (tune this)
+    const intervalId = setInterval(fetchPet, 5000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
   }, []);
+
 
   // Handle actions
   const handleAction = async (actionType: ActionType, detail?: ActionDetail) => {

@@ -38,6 +38,8 @@ export default function HomeScreen() {
     };
   }, []);
 
+    checkPet();
+  }, []);
 
   const handlePress = async () => {
     // Create/reset pet if none exists
@@ -119,7 +121,7 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     color: "#512051",
-    fontFamily: "PressStart2P_400Regular",
+    fontWeight: "800",
     fontSize: 16,
     letterSpacing: 0.8,
   },
