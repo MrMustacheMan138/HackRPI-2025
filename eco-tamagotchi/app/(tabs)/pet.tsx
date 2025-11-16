@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
 
   // 🪟 LCD screen area (where pet + stats live)
   petCard: {
-    width: "90%",
+    width: "70%",
     alignItems: "center",
     paddingVertical: 16,
     paddingHorizontal: 12,
