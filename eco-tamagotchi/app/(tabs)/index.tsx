@@ -13,7 +13,6 @@ import { getPetState, resetPet } from "../../src/logic/petState.js";
 export default function HomeScreen() {
   const [hasPet, setHasPet] = useState(false);
 
-  // on first mount, check if a pet already exists
   useEffect(() => {
     async function checkPet() {
       const pet = await getPetState();
@@ -23,20 +22,24 @@ export default function HomeScreen() {
   }, []);
 
   const handlePress = async () => {
-    // if no pet yet, create/reset one
     if (!hasPet) {
       await resetPet();
       setHasPet(true);
     }
+<<<<<<< Updated upstream
 
     // navigate to the Pet tab
     router.push("/(tabs)/pet");
+=======
+    navigation.navigate("Pet" as never);
+>>>>>>> Stashed changes
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <Text style={styles.title}>Eco-Tamagotchi🌱</Text>
+
         <Text style={styles.subtitle}>
           Take care of your Tamagotchi friend by logging real-world eco-actions
           like recycling, walking, and saving energy. As you build habits, your
@@ -65,35 +68,65 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#BEE3FF",
   },
+
+  // ⭐ PIXEL TITLE
   title: {
-    fontSize: 28,
-    fontWeight: "900",
+    fontSize: 30,
+    fontFamily: "PressStart2P_400Regular",
     color: "#1F2933",
     textAlign: "center",
-    marginBottom: 12,
+    marginBottom: 20,
+    lineHeight: 32,
+    maxWidth: "90%",
   },
+
+  // ⭐ PIXEL SUBTITLE
   subtitle: {
     fontSize: 15,
+    fontFamily: "PressStart2P_400Regular",
     color: "#4B5563",
     textAlign: "center",
-    marginBottom: 28,
+    marginBottom: 40,
     lineHeight: 22,
+
+    // ⭐ NEW — centers the paragraph & reduces width
+    maxWidth: 1000,      // limit long lines
+    width: "85%",       // responsive padding on each side
+    alignSelf: "center",
   },
+
+  // ⭐ BUTTON
   ctaButton: {
+<<<<<<< Updated upstream
     marginTop: 4,
     backgroundColor: "#FFB3DA",
     paddingHorizontal: 28,
     paddingVertical: 12,
+=======
+    marginTop: 10,
+    backgroundColor: "#FFB3DA",
+    paddingHorizontal: 30,
+    paddingVertical: 16,
+>>>>>>> Stashed changes
     borderRadius: 999,
     shadowColor: "#F472B6",
     shadowOpacity: 0.35,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 5 },
   },
+
+  // ⭐ PIXEL BUTTON TEXT
   ctaText: {
     color: "#512051",
+<<<<<<< Updated upstream
     fontWeight: "800",
     fontSize: 16,
     letterSpacing: 0.8,
+=======
+    fontSize: 12,
+    fontFamily: "PressStart2P_400Regular",
+    letterSpacing: 1,
+    textAlign: "center",
+>>>>>>> Stashed changes
   },
 });
