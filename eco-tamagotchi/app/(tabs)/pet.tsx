@@ -1,169 +1,375 @@
 // app/(tabs)/pet.tsx
-// Cleaned and organized version
-
 import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   TouchableOpacity,
-  Animated,
-  Easing,
+  SafeAreaView,
+  Image,
   Modal,
+  Pressable,
+  ImageBackground,
+  Animated,
 } from "react-native";
+import {
+  getPetState,
+  logAction,
+  resetPet,
+  loadHistory,
+} from "../../src/logic/petState.js";
+import HistorySidebar from "./components/history_sidebar";
+import { PressStart2P_400Regular } from "@expo-google-fonts/press-start-2p";
 
-// Correct paths
-import { petState } from "../../src/logic/petState.js";
-import AchievementsSidebar from ".././components/achievements_sidebar";
-import HistorySidebar from "../history_sidebar.tsx";
+// Background & shell images
+const bgImage = require("../../assets/images/newnew.png");
+const shellImage = require("../../assets/images/machine.png");
+
+// Types
+type ActionType = "recycle" | "walk" | "energySave";
+type ActionDetail =
+  | "Plastic"
+  | "Paper"
+  | "Electronics"
+  | "Short walk"
+  | "Medium walk"
+  | "Long walk"
+  | "Turned off lights"
+  | "Shorter shower"
+  | "Unplugged devices";
+
+type PetState = {
+  mood: string;
+  xp: number;
+  level: number;
+  coins?: number;
+  lastUpdated: number;
+  message?: string;
+  stage?: { name: string };
+  actions?: Record<string, number>;
+};
+
+type Achievement = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  requirement: any;
+};
+
+// Load achievements from JSON
+const achievements: Achievement[] = require("../../src/storage/achievements.json");
+
+// Pet image based on level
+function getPetImage(level: number) {
+  if (level >= 64) return require("../../assets/images/level3.png");
+  if (level >= 32) return require("../../assets/images/Small_Man.gif");
+  if (level >= 16) return require("../../assets/images/blob.gif");
+  return require("../../assets/images/egg.gif");
+}
 
 export default function PetScreen() {
-  const { level, xp, streak, updateXp } = petState;
+  const [pet, setPet] = useState<PetState>({
+    mood: "neutral",
+    xp: 0,
+    level: 1,
+    lastUpdated: Date.now(),
+    actions: {},
+  });
+  const [historyVisible, setHistoryVisible] = useState(false);
+  const [achievementsVisible, setAchievementsVisible] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
+  const [pendingActionType, setPendingActionType] =
+    useState<ActionType | null>(null);
+  const [isActionModalVisible, setIsActionModalVisible] = useState(false);
 
-  const [petMood, setPetMood] = useState("happy");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [historyOpen, setHistoryOpen] = useState(false);
+  // Side button animations
+  const logButtonAnim = useRef(new Animated.Value(0)).current;
+  const achButtonAnim = useRef(new Animated.Value(0)).current;
 
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  // Achievement toast state
+  const [toastVisible, setToastVisible] = useState(false);
+  const [currentAchievement, setCurrentAchievement] =
+    useState<Achievement | null>(null);
+  const toastAnim = useRef(new Animated.Value(0)).current;
 
-  // Bounce animation
-  const playBounce = () => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 1.2,
-        duration: 150,
-        easing: Easing.ease,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 150,
-        easing: Easing.ease,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  // Handle pet tap
-  const handlePetPress = () => {
-    playBounce();
-    updateXp(5);
-    setPetMood("excited");
-    setTimeout(() => setPetMood("happy"), 1000);
-  };
-
-  // Mood decay
+  // 🔁 Load pet state & history
   useEffect(() => {
-    const timer = setInterval(() => {
-      if (petMood === "happy") setPetMood("neutral");
-    }, 10000);
+    let isMounted = true;
 
-    return () => clearInterval(timer);
-  }, [petMood]);
+    async function fetchPet() {
+      try {
+        const petData = await getPetState(); // applies time-based decay
+        const historyData = await loadHistory();
 
-  // Image map
-  const petImage = {
-    happy: require("../../assets/pet/happy.png"),
-    neutral: require("../../assets/pet/neutral.png"),
-    excited: require("../../assets/pet/excited.png"),
-    sad: require("../../assets/pet/sad.png"),
-  }[petMood];
+        if (!isMounted) return;
+
+        if (petData) setPet(petData);
+        setHistory(historyData);
+      } catch (e) {
+        console.log("Error loading pet:", e);
+      }
+    }
+
+    fetchPet();
+    const intervalId = setInterval(fetchPet, 5000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  // Handle actions
+  const handleAction = async (actionType: ActionType, detail?: ActionDetail) => {
+    const oldLevel = pet.level;
+    const updatedPet = await logAction(actionType, detail);
+    setPet(updatedPet);
+
+    const historyData = await loadHistory();
+    setHistory(historyData);
+
+    checkAchievements(updatedPet, oldLevel);
+  };
+
+  const openActionModal = (type: ActionType) => {
+    setPendingActionType(type);
+    setIsActionModalVisible(true);
+  };
+
+  const handleConfirmAction = async (detail: ActionDetail) => {
+    if (!pendingActionType) return;
+    await handleAction(pendingActionType, detail);
+    setIsActionModalVisible(false);
+    setPendingActionType(null);
+  };
+
+  const handleResetPet = async () => {
+    const newPet = await resetPet();
+    setPet(newPet);
+    const historyData = await loadHistory();
+    setHistory(historyData);
+  };
+
+  const checkAchievements = (updatedPet: PetState, oldLevel: number) => {
+    const unlockedAchievements = achievements.filter((ach) => {
+      if (
+        ach.requirement.level &&
+        updatedPet.level >= ach.requirement.level &&
+        oldLevel < ach.requirement.level
+      ) {
+        return true;
+      }
+
+      if (ach.requirement.action) {
+        const count = updatedPet.actions?.[ach.requirement.action] || 0;
+        return count >= ach.requirement.count;
+      }
+
+      return false;
+    });
+
+    unlockedAchievements.forEach(showAchievementToast);
+  };
+
+  const showAchievementToast = (achievement: Achievement) => {
+    setCurrentAchievement(achievement);
+    setToastVisible(true);
+    Animated.sequence([
+      Animated.timing(toastAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.delay(2000),
+      Animated.timing(toastAnim, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setToastVisible(false);
+      setCurrentAchievement(null);
+    });
+  };
+
+  // Animate side buttons
+  useEffect(() => {
+    Animated.timing(logButtonAnim, {
+      toValue: historyVisible ? -80 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(achButtonAnim, {
+      toValue: achievementsVisible ? -80 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [historyVisible, achievementsVisible]);
+
+  const petImage = getPetImage(pet.level);
+  const stageName = pet.stage?.name ?? "Egg";
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Your Eco Pet</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={bgImage}
+        style={styles.backgroundImage}
+        resizeMode="cover"
+      >
+        {/* Coin Counter */}
+        <View style={styles.coinCounter}>
+          <Text style={styles.coinText}>${pet.coins || 0}</Text>
+        </View>
 
-      <View style={styles.statsContainer}>
-        <Text style={styles.stat}>Level: {level}</Text>
-        <Text style={styles.stat}>XP: {xp}</Text>
-        <Text style={styles.stat}>Streak: {streak} days</Text>
-      </View>
+        {/* Side Buttons */}
+        <Animated.View
+          style={[styles.sideButton, { transform: [{ translateX: logButtonAnim }] }]}
+        >
+          <TouchableOpacity
+            style={styles.sideButtonInner}
+            onPress={() => setHistoryVisible(true)}
+          >
+            <Text style={styles.sideButtonText}>Action Log</Text>
+          </TouchableOpacity>
+        </Animated.View>
 
-      <TouchableOpacity onPress={handlePetPress} activeOpacity={0.8}>
-        <Animated.Image
-          source={petImage}
-          style={[styles.petImage, { transform: [{ scale: scaleAnim }] }]}
+        <Animated.View
+          style={[styles.sideButton, { bottom: 100, transform: [{ translateX: achButtonAnim }] }]}
+        >
+          <TouchableOpacity
+            style={styles.sideButtonInner}
+            onPress={() => setAchievementsVisible(true)}
+          >
+            <Text style={styles.sideButtonText}>Achievements</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Centered machine + screen + buttons */}
+        <View style={styles.background}>
+          <View style={styles.shellWrapper}>
+            <Text style={styles.appTitle}>Tama</Text>
+            <ImageBackground
+              source={shellImage}
+              style={styles.shell}
+              resizeMode="contain"
+            >
+              <View style={styles.screen}>
+                <Image
+                  source={petImage}
+                  style={styles.petImage}
+                  resizeMode="contain"
+                />
+                <Text style={styles.petName}>{stageName}</Text>
+                <Text style={styles.petLevel}>Level: {pet.level}</Text>
+                <Text style={styles.petMood}>
+                  Mood: <Text style={styles.petMoodValue}>{pet.mood}</Text>
+                </Text>
+                <Text style={styles.petStat}>XP: {pet.xp}</Text>
+
+                <View style={styles.actionsWrapper}>
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.recycleButton]}
+                    onPress={() => openActionModal("recycle")}
+                  >
+                    <Text style={styles.actionText}>RECYCLE</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.walkButton]}
+                    onPress={() => openActionModal("walk")}
+                  >
+                    <Text style={styles.actionText}>WALK</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.energyButton]}
+                    onPress={() => openActionModal("energySave")}
+                  >
+                    <Text style={styles.actionText}>SAVE ENERGY</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </ImageBackground>
+          </View>
+        </View>
+
+        {/* History / Achievements Sidebar */}
+        <HistorySidebar
+          visible={historyVisible || achievementsVisible}
+          onClose={() => {
+            setHistoryVisible(false);
+            setAchievementsVisible(false);
+          }}
+          history={history}
+          petActions={pet.actions}
+          achievements={achievements}
+          onResetPet={handleResetPet}
         />
-      </TouchableOpacity>
 
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={styles.sidebarButton}
-          onPress={() => setSidebarOpen(true)}
-        >
-          <Text style={styles.buttonText}>Achievements</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.sidebarButton}
-          onPress={() => setHistoryOpen(true)}
-        >
-          <Text style={styles.buttonText}>History</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Achievements Sidebar */}
-      <Modal visible={sidebarOpen} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
-          <AchievementsSidebar onClose={() => setSidebarOpen(false)} />
-        </View>
-      </Modal>
-
-      {/* History Sidebar */}
-      <Modal visible={historyOpen} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
-          <HistorySidebar onClose={() => setHistoryOpen(false)} />
-        </View>
-      </Modal>
-    </View>
+        {/* Achievement toast */}
+        {toastVisible && currentAchievement && (
+          <Animated.View
+            style={[
+              styles.toastContainer,
+              {
+                opacity: toastAnim,
+                transform: [
+                  {
+                    translateY: toastAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-100, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <Image
+              source={require("../../assets/images/trophy_placeholder.png")}
+              style={styles.toastIcon}
+            />
+            <View style={{ marginLeft: 12 }}>
+              <Text style={styles.toastTitle}>{currentAchievement.title}</Text>
+              <Text style={styles.toastDescription}>
+                {currentAchievement.description}
+              </Text>
+            </View>
+          </Animated.View>
+        )}
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#DFF6DD",
-    alignItems: "center",
-    paddingTop: 60,
-  },
-  header: {
-    fontSize: 32,
-    fontWeight: "700",
-    marginBottom: 10,
-  },
-  statsContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  stat: {
-    fontSize: 18,
-    fontWeight: "500",
-  },
-  petImage: {
-    width: 200,
-    height: 200,
-    marginVertical: 20,
-  },
-  buttonRow: {
-    flexDirection: "row",
-    marginTop: 20,
-    gap: 10,
-  },
-  sidebarButton: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
-  },
+  safeArea: { flex: 1, backgroundColor: "#000" },
+  backgroundImage: { flex: 1, width: "100%", height: "100%" },
+  background: { flex: 1, justifyContent: "center", alignItems: "center" },
+  shellWrapper: { alignItems: "center", justifyContent: "center" },
+  shell: { width: 350, height: 350, alignItems: "center", justifyContent: "center", position: "relative" },
+  screen: { position: "absolute", top: "26%", left: "22%", right: "22%", bottom: "30%", backgroundColor: "transparent", borderRadius: 12, alignItems: "center", justifyContent: "flex-start", paddingHorizontal: 8, paddingVertical: 6 },
+  appTitle: { fontFamily: "PressStart2P_400Regular", fontSize: 18, color: "#7C3AED", textAlign: "center", letterSpacing: 1.5, marginBottom: 10 },
+  petImage: { width: 80, height: 80, marginBottom: 6 },
+  petName: { fontFamily: "PressStart2P_400Regular", fontSize: 16, color: "#FB7185", marginBottom: 4, textAlign: "center" },
+  petLevel: { fontFamily: "PressStart2P_400Regular", fontSize: 12, color: "#7C3AED", marginBottom: 4 },
+  petMood: { fontFamily: "PressStart2P_400Regular", fontSize: 11, color: "#4B5563", marginBottom: 2 },
+  petMoodValue: { fontFamily: "PressStart2P_400Regular", color: "#F59E0B" },
+  petStat: { fontFamily: "PressStart2P_400Regular", fontSize: 11, color: "#6B7280", marginBottom: 8 },
+  actionsWrapper: { marginTop: 8, width: 220, gap: 8 },
+  actionButton: { width: "100%", paddingVertical: 6, borderRadius: 999, alignItems: "center", justifyContent: "center", shadowColor: "#F9A8D4", shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+  actionText: { fontFamily: "PressStart2P_400Regular", letterSpacing: 0.5, fontSize: 12 },
+  recycleButton: { backgroundColor: "#BBF7D0" },
+  walkButton: { backgroundColor: "#BFDBFE" },
+  energyButton: { backgroundColor: "#FDE68A" },
+  coinCounter: { position: "absolute", top: 20, left: 30, backgroundColor: "#FFD700", paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 2, borderColor: "#FFA500", zIndex: 100, shadowColor: "#000", shadowOpacity: 0.3, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
+  coinText: { fontFamily: "PressStart2P_400Regular", fontSize: 16, color: "#000", fontWeight: "bold" },
+  sideButton: { position: "absolute", right: 10, top: 50, zIndex: 100 },
+  sideButtonInner: { backgroundColor: "#7C3AED", paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8 },
+  sideButtonText: { color: "#FFF", fontFamily: "PressStart2P_400Regular", fontSize: 12 },
+  toastContainer: { position: "absolute", top: 50, left: 20, right: 20, flexDirection: "row", alignItems: "center", backgroundColor: "#1F2937", padding: 12, borderRadius: 12, shadowColor: "#000", shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
+  toastIcon: { width: 48, height: 48, borderRadius: 8 },
+  toastTitle: { fontFamily: "PressStart2P_400Regular", color: "#FFF", fontSize: 14 },
+  toastDescription: { fontFamily: "PressStart2P_400Regular", color: "#D1D5DB", fontSize: 10 },
 });
