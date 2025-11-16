@@ -28,9 +28,9 @@ export default function HomeScreen() {
       await resetPet();
       setHasPet(true);
     }
-
     // navigate to the Pet tab
     router.push("/(tabs)/pet");
+    navigation.navigate("Pet" as never);
   };
 
   return (
@@ -84,6 +84,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFB3DA",
     paddingHorizontal: 28,
     paddingVertical: 12,
+    marginTop: 10,
+    backgroundColor: "#FFB3DA",
+    paddingHorizontal: 30,
+    paddingVertical: 16,
     borderRadius: 999,
     shadowColor: "#F472B6",
     shadowOpacity: 0.35,
@@ -95,5 +99,9 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     fontSize: 16,
     letterSpacing: 0.8,
+    fontSize: 12,
+    fontFamily: "PressStart2P_400Regular",
+    letterSpacing: 1,
+    textAlign: "center",
   },
 });
