@@ -312,8 +312,8 @@ const styles = StyleSheet.create({
     // Floating history button (top right)
     floatingHistoryButton: {
         position: "absolute",
-        top: 60, // Adjust based on your header
-        right: 20,
+        top: 20, // Adjust based on your header
+        right: 15,
         width: 50,
         height: 50,
         borderRadius: 25,
