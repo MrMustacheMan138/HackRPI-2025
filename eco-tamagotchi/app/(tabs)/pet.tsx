@@ -353,10 +353,10 @@ const styles = StyleSheet.create({
   },
 
   container: {
-    width: 400,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    borderRadius: 180,
+    width: 450,
+    paddingVertical: 50,
+    paddingHorizontal: 30,
+    borderRadius: 225,
     backgroundColor: "#FFB3DA",
     borderWidth: 4,
     borderColor: "#FF8CCF",
