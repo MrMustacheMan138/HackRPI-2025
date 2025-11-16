@@ -95,5 +95,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     fontSize: 16,
     letterSpacing: 0.8,
+
   },
 });
