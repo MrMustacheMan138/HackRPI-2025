@@ -236,7 +236,7 @@ export default function PetScreen() {
         </Animated.View>
 
         <Animated.View
-          style={[styles.sideButton, { bottom: 100, transform: [{ translateX: achButtonAnim }] }]}
+          style={[styles.sideButton, { top: 130, transform: [{ translateX: achButtonAnim }] }]}
         >
           <TouchableOpacity
             style={styles.sideButtonInner}
@@ -306,6 +306,7 @@ export default function PetScreen() {
           petActions={pet.actions}
           achievements={achievements}
           onResetPet={handleResetPet}
+          showAchievements={achievementsVisible}
         />
 
         {/* Action Selection Modal */}

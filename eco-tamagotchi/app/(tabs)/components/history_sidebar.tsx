@@ -15,16 +15,31 @@ type Achievement = {
   earned: boolean;
 };
 
+type HistoryEntry = {
+  timestamp: number;
+  actionType: string;
+  detail?: string;
+  xpGain?: number;
+};
+
 type Props = {
   visible: boolean;
   onClose: () => void;
   achievements?: Achievement[];
+  history?: HistoryEntry[];
+  showAchievements?: boolean;
+  petActions?: Record<string, number>;
+  onResetPet?: () => void;
 };
 
 export default function AchievementsSidebar({
   visible,
   onClose,
   achievements = [],
+  history = [],
+  showAchievements = true,
+  petActions,
+  onResetPet,
 }: Props) {
   if (!visible) return null;
 
@@ -34,27 +49,50 @@ export default function AchievementsSidebar({
 
       <View style={styles.sidebar}>
         <View style={styles.header}>
-          <Text style={styles.title}>Achievements</Text>
+          <Text style={styles.title}>{showAchievements ? "Achievements" : "Action Log"}</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeText}>✕</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.scrollView}>
-          {achievements.length === 0 ? (
-            <Text style={styles.emptyText}>No achievements yet! 🌱</Text>
+          {showAchievements ? (
+            achievements.length === 0 ? (
+              <Text style={styles.emptyText}>No achievements yet! 🌱</Text>
+            ) : (
+              achievements.map((ach) => (
+                <View key={ach.id} style={styles.entry}>
+                  <Text style={styles.achievementTitle}>
+                    {ach.earned ? "🏆 " : "🔒 "}
+                    {ach.title}
+                  </Text>
+                  <Text style={styles.achievementDesc}>{ach.description}</Text>
+                </View>
+              ))
+            )
           ) : (
-            achievements.map((ach) => (
-              <View key={ach.id} style={styles.entry}>
-                <Text style={styles.achievementTitle}>
-                  {ach.earned ? "🏆 " : "🔒 "}
-                  {ach.title}
-                </Text>
-                <Text style={styles.achievementDesc}>{ach.description}</Text>
-              </View>
-            ))
+            history.length === 0 ? (
+              <Text style={styles.emptyText}>No actions logged yet! 🌱</Text>
+            ) : (
+              history.map((entry, idx) => (
+                <View key={idx} style={styles.entry}>
+                  <Text style={styles.achievementTitle}>
+                    {entry.actionType}: {entry.detail}
+                  </Text>
+                  <Text style={styles.achievementDesc}>
+                    {entry.xpGain ? `+${entry.xpGain} XP` : ""} • {new Date(entry.timestamp).toLocaleString()}
+                  </Text>
+                </View>
+              ))
+            )
           )}
         </ScrollView>
+
+        {!showAchievements && onResetPet && (
+          <TouchableOpacity onPress={onResetPet} style={styles.resetButton}>
+            <Text style={styles.resetText}>Reset Pet</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -73,4 +111,6 @@ const styles = StyleSheet.create({
   entry: { backgroundColor: "#FFFFFF", paddingVertical: 12, paddingHorizontal: 12, borderRadius: 14, marginBottom: 10, borderWidth: 1, borderColor: "#FBCFE8" },
   achievementTitle: { fontFamily: "Baloo2_600SemiBold", fontSize: 15, color: "#111827", marginBottom: 2 },
   achievementDesc: { fontFamily: "Baloo2_400Regular", fontSize: 12, color: "#9CA3AF" },
+  resetButton: { margin: 16, backgroundColor: "#EF4444", paddingVertical: 12, borderRadius: 12, alignItems: "center" },
+  resetText: { fontFamily: "Baloo2_600SemiBold", fontSize: 14, color: "#FFF" },
 });
