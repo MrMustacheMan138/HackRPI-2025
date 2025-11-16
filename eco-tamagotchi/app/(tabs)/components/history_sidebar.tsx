@@ -38,9 +38,9 @@ const actionNames: Record<HistoryEntry["action"], string> = {
 };
 
 const actionIcons: Record<HistoryEntry["action"], any> = {
-  recycle: require("../../assets/images/recycler.png"),
-  walk: require("../../assets/images/walk.png"),
-  energySave: require("../../assets/images/energy_saver.png"),
+  recycle: require("../../assets/images/trophy_placeholder.png"),
+  walk: require("../../assets/images/trophy_placeholder.png"),
+  energySave: require("../../assets/images/trophy_placeholder.png"),
 };
 
 // Format timestamps
