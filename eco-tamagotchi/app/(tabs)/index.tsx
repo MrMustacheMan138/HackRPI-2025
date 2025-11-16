@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  ImageBackground,
 } from "react-native";
 import { router } from "expo-router";
 
@@ -52,20 +53,28 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Eco-Tamagotchi🌱</Text>
-        <Text style={styles.subtitle}>
-          Take care of your Tamagotchi friend by logging real-world eco-actions
-          like recycling, walking, and saving energy. As you build habits, your
-          pet grows happier and evolves!
-        </Text>
+      <ImageBackground
+        source={require("../../assets/images/wallpaper3.jpg")}
+        style={styles.backgroundImage}
+        resizeMode="cover"
+      >
+        <View style={styles.container}>
+          <View style={styles.textBox}>
+            <Text style={styles.title}>Eco-Tamagotchi🌱</Text>
+            <Text style={styles.subtitle}>
+              Take care of your Tamagotchi friend by logging real-world eco-actions
+              like recycling, walking, and saving energy. As you build habits, your
+              pet grows happier and evolves!
+            </Text>
+          </View>
 
-        <TouchableOpacity style={styles.ctaButton} onPress={handlePress}>
-          <Text style={styles.ctaText}>
-            {hasPet ? "View Pet" : "Create New Pet"}
-          </Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.ctaButton} onPress={handlePress}>
+            <Text style={styles.ctaText}>
+              {hasPet ? "View Pet" : "Create New Pet"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
@@ -73,14 +82,25 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#BEE3FF",
+  },
+  backgroundImage: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
   },
   container: {
     flex: 1,
     paddingHorizontal: 24,
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#BEE3FF",
+    justifyContent: "flex-start",
+    paddingTop: 80,
+  },
+
+  textBox: {
+    backgroundColor: "rgba(255, 255, 255, 0.75)",
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 20,
   },
 
   // ⭐ PIXEL TITLE

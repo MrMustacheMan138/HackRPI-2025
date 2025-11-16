@@ -11,19 +11,19 @@ type Achievement = {
 
 type Props = {
   achievement: Achievement;
-  index: number; // for stacking
+  index: number; // for stacking multiple toasts
   onHide: () => void;
 };
 
 export default function AchievementToast({ achievement, index, onHide }: Props) {
-  const slideAnim = useRef(new Animated.Value(-100)).current; // starts above screen
+  const textAnim = useRef(new Animated.Value(-150)).current; // text slides horizontally
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Slide in
+    // Animate text sliding in from left of icon
     Animated.parallel([
-      Animated.timing(slideAnim, {
-        toValue: 0 + index * 70, // stack vertically
+      Animated.timing(textAnim, {
+        toValue: 0,
         duration: 400,
         useNativeDriver: true,
       }),
@@ -37,8 +37,8 @@ export default function AchievementToast({ achievement, index, onHide }: Props) 
     // Hide after 3 sec
     const timer = setTimeout(() => {
       Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: -100,
+        Animated.timing(textAnim, {
+          toValue: -150,
           duration: 400,
           useNativeDriver: true,
         }),
@@ -54,43 +54,47 @@ export default function AchievementToast({ achievement, index, onHide }: Props) 
   }, []);
 
   return (
-    <Animated.View
-      style={[
-        styles.toast,
-        {
-          transform: [{ translateY: slideAnim }],
-          opacity: opacityAnim,
-        },
-      ]}
-    >
+    <View style={[styles.container, { top: 20 + index * 70 }]}>
+      {/* Fixed icon */}
       <Image source={{ uri: achievement.icon }} style={styles.icon} />
-      <View style={styles.textWrapper}>
+
+      {/* Sliding text */}
+      <Animated.View
+        style={[
+          styles.textWrapper,
+          { transform: [{ translateX: textAnim }], opacity: opacityAnim },
+        ]}
+      >
         <Text style={styles.title}>{achievement.title}</Text>
         <Text style={styles.description}>{achievement.description}</Text>
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  toast: {
+  container: {
     position: "absolute",
-    top: 20,
     right: 20,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#222",
-    padding: 10,
-    borderRadius: 12,
     width: 280,
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
     zIndex: 999,
   },
-  icon: { width: 48, height: 48, marginRight: 10, borderRadius: 6 },
-  textWrapper: { flex: 1 },
+  icon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24, // make it circular
+    backgroundColor: "#444", // fallback if icon fails
+  },
+  textWrapper: {
+    marginLeft: 12,
+    backgroundColor: "#222",
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    flex: 1,
+  },
   title: { fontFamily: "PressStart2P_400Regular", color: "#FFF", fontSize: 12 },
   description: { fontFamily: "PressStart2P_400Regular", color: "#DDD", fontSize: 10 },
 });
