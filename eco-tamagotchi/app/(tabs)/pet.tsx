@@ -24,7 +24,7 @@ import { PressStart2P_400Regular } from "@expo-google-fonts/press-start-2p";
 
 // Background & shell images
 const bgImage = require("../../assets/images/newnew.png");
-const shellImage = require("../../assets/images/machine.png");
+const shellImage = require("../../assets/images/tamagotchi.png");
 
 // Types
 type ActionType = "recycle" | "walk" | "energySave";
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   backgroundImage: { flex: 1, width: "100%", height: "100%" },
   background: { flex: 1, justifyContent: "center", alignItems: "center" },
   shellWrapper: { alignItems: "center", justifyContent: "center" },
-  shell: { width: 350, height: 350, alignItems: "center", justifyContent: "center", position: "relative" },
+  shell: { width: 520, height: 520, alignItems: "center", justifyContent: "center", position: "relative" },
   screen: { position: "absolute", top: "26%", left: "22%", right: "22%", bottom: "30%", backgroundColor: "transparent", borderRadius: 12, alignItems: "center", justifyContent: "flex-start", paddingHorizontal: 8, paddingVertical: 6 },
   appTitle: { fontFamily: "PressStart2P_400Regular", fontSize: 18, color: "#7C3AED", textAlign: "center", letterSpacing: 1.5, marginBottom: 10 },
   petImage: { width: 80, height: 80, marginBottom: 6 },
