@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Animated,
 } from 'react-native';
 
 type HistoryEntry = {
@@ -53,10 +52,10 @@ export default function HistorySidebar({ visible, onClose, history }: Props) {
   return (
     <View style={styles.overlay}>
       <TouchableOpacity style={styles.backdrop} onPress={onClose} />
-      
+
       <View style={styles.sidebar}>
         <View style={styles.header}>
-          <Text style={styles.title}>📜 Action Log</Text>
+          <Text style={styles.title}>Action Log</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeText}>✕</Text>
           </TouchableOpacity>
@@ -64,16 +63,19 @@ export default function HistorySidebar({ visible, onClose, history }: Props) {
 
         <ScrollView style={styles.scrollView}>
           {history.length === 0 ? (
-            <Text style={styles.emptyText}>No actions yet! Start taking care of your pet 🌱</Text>
+            <Text style={styles.emptyText}>
+              No actions yet! Start taking care of your pet 🌱
+            </Text>
           ) : (
             history.map((entry) => (
               <View key={entry.id} style={styles.entry}>
                 <Text style={styles.emoji}>
-                  {actionEmojis[entry.action as keyof typeof actionEmojis] || '⭐'}
+                  {actionEmojis[entry.action as keyof typeof actionEmojis] || '🌱'}
                 </Text>
                 <View style={styles.entryContent}>
                   <Text style={styles.actionName}>
-                    {actionNames[entry.action as keyof typeof actionNames] || entry.action}
+                    {actionNames[entry.action as keyof typeof actionNames] ||
+                      entry.action}
                   </Text>
                   <Text style={styles.timestamp}>
                     {formatTimestamp(entry.timestamp)}
@@ -104,33 +106,36 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
   },
   sidebar: {
     position: 'absolute',
     right: 0,
     top: 0,
     bottom: 0,
-    width: 280,
-    backgroundColor: '#FFF5F7',
+    width: 300,
+    backgroundColor: '#FFF5FA', // soft pastel to match main screen
     shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    shadowOffset: { width: -2, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    shadowOffset: { width: -3, height: 0 },
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
     borderBottomWidth: 2,
     borderBottomColor: '#FFB3DA',
     backgroundColor: '#FFE5F1',
   },
   title: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontFamily: 'PressStart2P_400Regular',
+    fontSize: 12,
     color: '#7C3AED',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   closeButton: {
     width: 30,
@@ -141,15 +146,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   closeText: {
+    fontFamily: 'Baloo2_600SemiBold',
     fontSize: 18,
     color: '#512051',
-    fontWeight: '700',
   },
   scrollView: {
     flex: 1,
     padding: 12,
   },
   emptyText: {
+    fontFamily: 'Baloo2_400Regular',
     textAlign: 'center',
     color: '#9CA3AF',
     fontSize: 14,
@@ -160,9 +166,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: '#FBCFE8',
   },
@@ -174,18 +181,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actionName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1F2933',
+    fontFamily: 'Baloo2_600SemiBold',
+    fontSize: 15,
+    color: '#111827',
     marginBottom: 2,
   },
   timestamp: {
+    fontFamily: 'Baloo2_400Regular',
     fontSize: 12,
     color: '#9CA3AF',
   },
   xp: {
+    fontFamily: 'Baloo2_600SemiBold',
     fontSize: 14,
-    fontWeight: '800',
     color: '#10B981',
   },
 });
