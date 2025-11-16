@@ -28,16 +28,30 @@ const storeItems = [
 
 export default function StoreScreen() {
   const [coins, setCoins] = useState(0);
+  const [purchasedItems, setPurchasedItems] = useState<string[]>([]);
 
   useFocusEffect(
     React.useCallback(() => {
       loadCoins();
+      loadInventory();
     }, [])
   );
 
   const loadCoins = async () => {
     const petData = await getPetState();
     setCoins(petData.coins || 0);
+  };
+
+  const loadInventory = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(PET_KEY);
+      if (stored) {
+        const petData = JSON.parse(stored);
+        setPurchasedItems(petData.inventory || []);
+      }
+    } catch (error) {
+      console.error("Error loading inventory:", error);
+    }
   };
 
   const handlePurchase = async (item: typeof storeItems[0]) => {
@@ -59,15 +73,20 @@ export default function StoreScreen() {
         
         console.log("Old coins:", currentCoins, "New coins:", newCoins);
         
+        const currentInventory = petData.inventory || [];
+        const updatedInventory = [...currentInventory, item.name];
+        
         const updatedPet = {
           ...petData,
           coins: newCoins,
+          inventory: updatedInventory,
         };
 
         await AsyncStorage.setItem(PET_KEY, JSON.stringify(updatedPet));
         console.log("Updated pet saved");
         
         setCoins(newCoins);
+        setPurchasedItems(updatedInventory);
         
         Alert.alert("Purchase Successful!", `You bought ${item.name} for $${item.price}!\n\nRemaining coins: $${newCoins}`);
       }
@@ -120,6 +139,18 @@ export default function StoreScreen() {
             </View>
           </ScrollView>
         </View>
+
+        {/* Inventory Box */}
+        {purchasedItems.length > 0 && (
+          <View style={styles.inventoryBox}>
+            <Text style={styles.inventoryTitle}>Inventory</Text>
+            {purchasedItems.map((item, index) => (
+              <Text key={index} style={styles.inventoryItem}>
+                • {item}
+              </Text>
+            ))}
+          </View>
+        )}
       </ImageBackground>
     </SafeAreaView>
   );
@@ -255,5 +286,34 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#000",
     fontWeight: "bold",
+  },
+  inventoryBox: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#7C3AED",
+    maxWidth: 200,
+    maxHeight: 300,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  inventoryTitle: {
+    fontFamily: "PressStart2P_400Regular",
+    fontSize: 12,
+    color: "#7C3AED",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  inventoryItem: {
+    fontFamily: "PressStart2P_400Regular",
+    fontSize: 8,
+    color: "#1F2933",
+    marginBottom: 4,
   },
 });

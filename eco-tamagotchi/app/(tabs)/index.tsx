@@ -53,13 +53,13 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ImageBackground
-        source={require("../../assets/images/wallpaper3.jpg")}
+        source={require("../../assets/images/wallpaper4.jpg")}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
         <View style={styles.container}>
           <View style={styles.textBox}>
-            <Text style={styles.title}>Eco-Tamagotchi🌱</Text>
+            <Text style={styles.title}>Eco-Tamagotchi</Text>
             <Text style={styles.subtitle}>
               Take care of your Tamagotchi friend by logging real-world eco-actions
               like recycling, walking, and saving energy. As you build habits, your
@@ -91,8 +91,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     alignItems: "center",
-    justifyContent: "flex-start",
-    paddingTop: 80,
+    justifyContent: "center",
   },
 
   textBox: {

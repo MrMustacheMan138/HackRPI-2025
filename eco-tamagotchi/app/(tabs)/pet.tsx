@@ -259,7 +259,7 @@ export default function PetScreen() {
         {/* Centered machine + screen + buttons */}
         <View style={styles.background}>
           <View style={styles.shellWrapper}>
-            <Text style={styles.appTitle}>Tama</Text>
+            <Text style={styles.appTitle}>Habico</Text>
             <ImageBackground
               source={shellImage}
               style={styles.shell}
