@@ -76,19 +76,29 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#BEE3FF",
   },
+
+  // ⭐ PIXEL TITLE
   title: {
-    fontSize: 28,
-    fontWeight: "900",
+    fontSize: 22,
+    fontFamily: "PressStart2P_400Regular",
     color: "#1F2933",
     textAlign: "center",
-    marginBottom: 12,
+    marginBottom: 18,
+    lineHeight: 32, // Avoids clipping with pixel font
   },
+    
   subtitle: {
-    fontSize: 15,
+    fontSize: 12,
+    fontFamily: "PressStart2P_400Regular",
     color: "#4B5563",
     textAlign: "center",
-    marginBottom: 28,
+    marginBottom: 40,
     lineHeight: 22,
+
+    // ⭐ NEW — centers the paragraph & reduces width
+    maxWidth: 900,      // limit long lines
+    width: "85%",       // responsive padding on each side
+    alignSelf: "center",
   },
   ctaButton: {
     marginTop: 4,
