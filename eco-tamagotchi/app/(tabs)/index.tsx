@@ -100,6 +100,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 24,
     marginBottom: 20,
+    width: "90%",
+    maxWidth: 600,
   },
 
   // ⭐ PIXEL TITLE
@@ -109,7 +111,7 @@ const styles = StyleSheet.create({
     color: "#1F2933",
     textAlign: "center",
     marginBottom: 18,
-    lineHeight: 32, // Avoids clipping with pixel font
+    lineHeight: 32,
   },
     
   subtitle: {
@@ -119,11 +121,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 40,
     lineHeight: 22,
-
-    // ⭐ NEW — centers the paragraph & reduces width
-    maxWidth: 900,      // limit long lines
-    width: "85%",       // responsive padding on each side
-    alignSelf: "center",
   },
   ctaButton: {
     marginTop: 4,

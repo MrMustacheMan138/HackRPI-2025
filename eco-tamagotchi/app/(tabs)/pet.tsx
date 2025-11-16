@@ -12,6 +12,7 @@ import {
   ImageBackground,
   Animated, 
 } from "react-native";
+import { router } from "expo-router";
 import {
   getPetState,
   logAction,
@@ -244,6 +245,16 @@ export default function PetScreen() {
             <Text style={styles.sideButtonText}>Achievements</Text>
           </TouchableOpacity>
         </Animated.View>
+
+        {/* Store Button */}
+        <View style={[styles.sideButton, { top: 210 }]}>
+          <TouchableOpacity
+            style={styles.sideButtonInner}
+            onPress={() => router.push("/store")}
+          >
+            <Text style={styles.sideButtonText}>Store</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Centered machine + screen + buttons */}
         <View style={styles.background}>
