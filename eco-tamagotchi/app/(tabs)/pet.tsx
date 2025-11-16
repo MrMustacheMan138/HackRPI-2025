@@ -259,11 +259,11 @@ const styles = StyleSheet.create({
   // 💖 bottom action buttons (like Tamagotchi buttons area)
   actionsWrapper: {
     marginTop: 12,
-    width: "100%",
+    width: "80%",
     gap: 10,
   },
   actionButton: {
-    width: "80%",
+    width: "100%",
     paddingVertical: 10,
     borderRadius: 999,
     alignItems: "center",
