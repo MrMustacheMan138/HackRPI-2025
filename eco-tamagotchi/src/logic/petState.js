@@ -9,7 +9,7 @@ const HISTORY_KEY = "pet_history_v1";
 const MOOD_STEPS = ["happy", "okay", "meh", "sad", "miserable"];
 
 // How fast mood decays if player does nothing (e.g. one step every 6h)
-const DECAY_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6 hours
+const DECAY_INTERVAL_MS = 60 * 1000;
 
 // XP per action (tune however you like)
 const ACTION_XP = {
